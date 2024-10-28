@@ -6,6 +6,13 @@ from gymnasium.spaces import Dict, Discrete, Box
 
 from wofost_gym.envs.wofost_base import NPK_Env, Plant_NPK_Env, Harvest_NPK_Env
 
+from wofost_gym.envs.wofost_grape import Grape_Limited_NPKW_Env
+from wofost_gym.envs.wofost_grape import Grape_PP_Env
+from wofost_gym.envs.wofost_grape import Grape_Limited_NPK_Env
+from wofost_gym.envs.wofost_grape import Grape_Limited_N_Env
+from wofost_gym.envs.wofost_grape import Grape_Limited_NW_Env
+from wofost_gym.envs.wofost_grape import Grape_Limited_W_Env
+
 from wofost_gym.envs.wofost_annual import Limited_NPKW_Env
 from wofost_gym.envs.wofost_annual import PP_Env
 from wofost_gym.envs.wofost_annual import Limited_NPK_Env
@@ -116,6 +123,10 @@ class NPKDictObservationWrapper(gym.ObservationWrapper):
         self.observation_space = Dict(dict(output_dict+weather_dict+\
                                            [("DAYS", Box(low=-np.inf, high=np.inf,shape=(1,)))]))
 
+    def get_output_vars(self):
+        """Return a list of the output vars"""
+        return self.output_vars + self.weather_vars + ["DAYS"]
+    
     def observation(self, obs):
         """Puts the outputted variables in a dictionary.
 
@@ -234,29 +245,35 @@ class NPKDictActionWrapper(gym.ActionWrapper):
         # Default environments
         else: 
             if isinstance(self.env.unwrapped, PP_Env) or \
-                isinstance(self.env.unwrapped, Perennial_PP_Env):
+                isinstance(self.env.unwrapped, Perennial_PP_Env) or \
+                isinstance(self.env.unwrapped, Grape_PP_Env):
                 self.action_space = gym.spaces.Dict({"null": Discrete(1), "n": Discrete(1)})
             elif isinstance(self.env.unwrapped, Limited_NPK_Env) or \
-                isinstance(self.env.unwrapped, Perennial_Limited_NPK_Env):
+                isinstance(self.env.unwrapped, Perennial_Limited_NPK_Env)or \
+                isinstance(self.env.unwrapped, Grape_Limited_NPK_Env):
                 self.action_space = gym.spaces.Dict({"null": Discrete(1),\
                                  "n": Discrete(self.env.unwrapped.num_fert),\
                                  "p": Discrete(self.env.unwrapped.num_fert),\
                                  "k": Discrete(self.env.unwrapped.num_fert)})
             elif isinstance(self.env.unwrapped, Limited_N_Env) or \
-                isinstance(self.env.unwrapped, Perennial_Limited_N_Env):
+                isinstance(self.env.unwrapped, Perennial_Limited_N_Env) or \
+                isinstance(self.env.unwrapped, Grape_Limited_N_Env):
                 self.action_space = gym.spaces.Dict({"null": Discrete(1),\
                                  "n": Discrete(self.env.unwrapped.num_fert)})
             elif isinstance(self.env.unwrapped, Limited_NW_Env) or \
-                isinstance(self.env.unwrapped, Perennial_Limited_NW_Env):
+                isinstance(self.env.unwrapped, Perennial_Limited_NW_Env) or \
+                isinstance(self.env.unwrapped, Grape_Limited_NW_Env):
                 self.action_space = gym.spaces.Dict({"null": Discrete(1),\
                                  "n": Discrete(self.env.unwrapped.num_fert),\
                                  "irrig": Discrete(self.env.unwrapped.num_irrig)})
             elif isinstance(self.env.unwrapped, Limited_W_Env) or \
-                isinstance(self.env.unwrapped, Perennial_Limited_W_Env):
+                isinstance(self.env.unwrapped, Perennial_Limited_W_Env) or \
+                isinstance(self.env.unwrapped, Grape_Limited_W_Env):
                 self.action_space = gym.spaces.Dict({"null": Discrete(1),\
                                  "irrig": Discrete(self.env.unwrapped.num_irrig)})
             elif isinstance(self.env.unwrapped, Limited_NPKW_Env) or \
-                isinstance(self.env.unwrapped, Perennial_Limited_NPKW_Env): 
+                isinstance(self.env.unwrapped, Perennial_Limited_NPKW_Env) or \
+                isinstance(self.env.unwrapped, Grape_Limited_NPKW_Env): 
                 self.action_space = gym.spaces.Dict({"null": Discrete(1),\
                                  "n": Discrete(self.env.unwrapped.num_fert),\
                                  "p": Discrete(self.env.unwrapped.num_fert),\

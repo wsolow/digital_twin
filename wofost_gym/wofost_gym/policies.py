@@ -113,7 +113,7 @@ class Weekly_N(Policy):
         """
         super()._validate()
 
-        if self.amount > self.env.num_fert:
+        if self.amount > self.env.unwrapped.num_fert:
             msg = "N Amount exceeds total Nitrogen actions"
             raise PolicyException(msg)
         
@@ -151,7 +151,7 @@ class Interval_N(Policy):
         """
         super()._validate()
 
-        if self.amount > self.env.num_fert:
+        if self.amount > self.env.unwrapped.num_fert:
             msg = "W Amount exceeds total Fertilization actions"
             raise PolicyException(msg)
         
@@ -192,7 +192,7 @@ class Interval_W(Policy):
         """
         super()._validate()
 
-        if self.amount > self.env.num_irrig:
+        if self.amount > self.env.unwrapped.num_irrig:
             msg = "W Amount exceeds total Irrigation actions"
             raise PolicyException(msg)
         
@@ -317,7 +317,7 @@ class Threshold_N(Policy):
         """
         super()._validate()
 
-        if self.amount > self.env.num_fert:
+        if self.amount > self.env.unwrapped.num_fert:
             msg = "N Amount exceeds total Nitrogen actions"
             raise PolicyException(msg)
         
@@ -355,7 +355,7 @@ class Below_N(Policy):
         """
         super()._validate()
 
-        if self.amount > self.env.num_fert:
+        if self.amount > self.env.unwrapped.num_fert:
             msg = "N Amount exceeds total Nitrogen actions"
             raise PolicyException(msg)
 
@@ -393,7 +393,7 @@ class Below_I(Policy):
         """
         super()._validate()
 
-        if self.amount > self.env.num_irrig:
+        if self.amount > self.env.unwrapped.num_irrig:
             msg = "N Amount exceeds total Irrigation actions"
             raise PolicyException(msg)
         

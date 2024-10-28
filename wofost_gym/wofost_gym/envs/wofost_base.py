@@ -121,7 +121,7 @@ class NPK_Env(gym.Env):
         
         Args:
             seed: int - seed for the environment"""
-        self.np_random_seed, seed = gym.utils.seeding.np_random(seed)
+        #self.np_random_seed, seed = gym.utils.seeding.np_random(seed)
         np.random.seed(seed)
         return [seed]
         

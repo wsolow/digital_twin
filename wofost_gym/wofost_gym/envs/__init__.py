@@ -1,5 +1,12 @@
 from wofost_gym.envs.wofost_base import NPK_Env, Harvest_NPK_Env, Plant_NPK_Env
 
+from wofost_gym.envs.wofost_grape import Grape_Limited_NPKW_Env
+from wofost_gym.envs.wofost_grape import Grape_PP_Env
+from wofost_gym.envs.wofost_grape import Grape_Limited_NPK_Env
+from wofost_gym.envs.wofost_grape import Grape_Limited_N_Env
+from wofost_gym.envs.wofost_grape import Grape_Limited_NW_Env
+from wofost_gym.envs.wofost_grape import Grape_Limited_W_Env
+
 from wofost_gym.envs.wofost_annual import Limited_NPKW_Env
 from wofost_gym.envs.wofost_annual import PP_Env
 from wofost_gym.envs.wofost_annual import Limited_NPK_Env

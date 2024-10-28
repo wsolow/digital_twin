@@ -7,6 +7,32 @@ from wofost_gym import args
 from wofost_gym import utils
 from wofost_gym import exceptions
 
+# Grape Environments
+register(
+    id='grape-lnpkw-v0',
+    entry_point='wofost_gym.envs.wofost_grape:Grape_Limited_NPKW_Env',
+)
+register(
+    id='grape-pp-v0',
+    entry_point='wofost_gym.envs.wofost_grape:Grape_PP_Env',
+)
+register(
+    id='grape-lnpk-v0',
+    entry_point='wofost_gym.envs.wofost_grape:Grape_Limited_NPK_Env',
+)
+register(
+    id='grape-ln-v0',
+    entry_point='wofost_gym.envs.wofost_grape:Grape_Limited_N_Env',
+)
+register(
+    id='grape-lnw-v0',
+    entry_point='wofost_gym.envs.wofost_grape:Grape_Limited_NW_Env',
+)
+register(
+    id='grape-lw-v0',
+    entry_point='wofost_gym.envs.wofost_grape:Grape_Limited_W_Env',
+)
+
 # Default Annual Environments
 register(
     id='lnpkw-v0',
