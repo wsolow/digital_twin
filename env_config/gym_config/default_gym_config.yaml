@@ -1,0 +1,65 @@
+
+    # Environment ID
+    env_id: lnpkw-v0
+    # Env Reward Function
+    env_reward: default
+    # Environment seed
+    seed: 0
+    # Path
+    path: "/Users/wsolow/Projects/agaid_crop_simulator/"
+    # Path to policy if using a trained Deep RL Agent Policy
+    # Typically in wandb/files/
+    agent_path:  None
+    # Agent type (PPO, DQN, SAC)
+    agent_type: None
+    # Policy name if using a policy in the policies.py file
+    policy_name: None
+
+    # Output Variables
+    # See env_config/README.md for more information
+    output_vars: ['TOTP', 'TOTK', 'TOTIRRIG', 'NAVAIL', 'PAVAIL', 'KAVAIL', 'SM', 'WSO', 'DVS']
+    # Weather Variables
+    weather_vars: ['IRRAD', 'TMIN', 'TMAX', 'TEMP', 'VAP', 'RAIN', 'WIND']
+    # Year range, incremented by 1
+    year_range: [1984, 2000]
+    # Latitude Range, incremented by .5
+    lat_range: [50, 50]
+    # Longitude Range of values, incremented by .5
+    long_range: [5, 5]
+
+    # Intervention Interval
+    intvn_interval: 1
+    # Weather Forecast length in days (min 1)
+    forecast_length: 1
+    # Weather forecast noise
+    forecast_noise: [0, 0.2]
+    # Number of NPK Fertilization Actions
+    # Total number of actions available will be 3*num_fert + num_irrig
+    num_fert: 4
+    # Number of Irrgiation Actions
+    num_irrig: 4
+    # Harvest Effiency in range (0,1)
+    harvest_effec: 1.0
+    # Irrigation Effiency in range (0,1)
+    irrig_effec: 0.7
+
+    # Coefficient for Nitrogen Recovery after fertilization
+    n_recovery: 0.7
+    # Coefficient for Phosphorous Recovery after fertilization
+    p_recovery: 0.7
+    # Coefficient for Potassium Recovery after fertilization
+    k_recovery: 0.7
+    # Amount of fertilizer coefficient in kg/ha
+    fert_amount: 2
+    # Amount of water coefficient in cm/water
+    irrig_amount: 0.5
+
+    # Relative path to agromanagement configuration file
+    agro_fpath: "env_config/agro_config/annual_agro_npk.yaml"
+    # Relative path to crop configuration file
+    crop_fpath: "env_config/crop_config/"
+    # Relative path to site configuration file
+    site_fpath: "env_config/site_config/"
+
+    # Flag for resetting to random year
+    random_reset: False

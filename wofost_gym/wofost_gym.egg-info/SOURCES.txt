@@ -1,0 +1,10 @@
+README.md
+setup.py
+wofost_gym/__init__.py
+wofost_gym.egg-info/PKG-INFO
+wofost_gym.egg-info/SOURCES.txt
+wofost_gym.egg-info/dependency_links.txt
+wofost_gym.egg-info/top_level.txt
+wofost_gym/envs/__init__.py
+wofost_gym/envs/fertilization_env.py
+wofost_gym/envs/npk_env.py
