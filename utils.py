@@ -14,8 +14,8 @@ import numpy as np
 import pandas as pd
 from dataclasses import dataclass, field
 
-import wofost_gym.wrappers.wrappers as wrappers
-from wofost_gym.args import NPK_Args
+import grape_gym.wrappers.wrappers as wrappers
+from grape_gym.args import NPK_Args
 
 warnings.filterwarnings("ignore", category=UserWarning)
 
@@ -38,7 +38,7 @@ class Args:
     """Path"""
     base_fpath: str = "/Users/wsolow/Projects/digital_twin/"
     """Relative path to agromanagement configuration file"""
-    agro_fpath: str = "env_config/agro_config/perennial_agro_npk.yaml"
+    agro_fpath: str = "env_config/agro_config/grape_agro.yaml"
     """Relative path to crop configuration folder"""
     crop_fpath: str = "env_config/crop_config/"
     """Relative path to site configuration foloder"""

@@ -13,9 +13,8 @@ import matplotlib.patches as patches
 import sys
 from datetime import datetime
 
-import wofost_gym
-import wofost_gym.policies as policies
-from wofost_gym.envs.wofost_base import NPK_Env, Plant_NPK_Env, Harvest_NPK_Env
+import grape_gym
+import grape_gym.policies as policies
 from utils import Args
 import utils
 import yaml
@@ -29,16 +28,12 @@ if __name__ == "__main__":
 
     # Make the gym environment with wrappers
     env = gym.make(env_id, **env_kwargs)
-    env = wofost_gym.wrappers.NPKDictActionWrapper(env)
-    env = wofost_gym.wrappers.NPKDictObservationWrapper(env)
+    env = grape_gym.wrappers.NPKDictActionWrapper(env)
+    env = grape_gym.wrappers.NPKDictObservationWrapper(env)
     
     # Set default policy for use
-    if isinstance(env.unwrapped, Harvest_NPK_Env):
-        policy = policies.No_Action_Harvest(env)
-    elif isinstance(env.unwrapped, Plant_NPK_Env):
-        policy = policies.No_Action_Plant(env)
-    else:
-        policy = policies.Interval_N(env, amount=0, interval=1)
+
+    policy = policies.No_Action(env)
 
     obs_arr = []
     obs, info = env.reset()
@@ -49,21 +44,21 @@ if __name__ == "__main__":
 
     # Run simulation and store data
     k = 0
-    while not term:
+    while not (term or trunc):
         action = policy(obs)
         next_obs, rewards, term, trunc, info = env.step(action)
         obs_arr.append(obs)
         reward_arr.append(rewards)
         obs = next_obs
         k+=1
-        if term or trunc:
+        if (term or trunc):
             obs, info = env.reset()
             break
     all_obs = np.array([list(d.values()) for d in obs_arr])
 
 
     df = pd.DataFrame(data=np.array(all_obs), columns=env.get_output_vars())
-    df.to_csv("data/below_n.csv")
+    # df.to_csv("data/below_n.csv")
 
 
     all_vars = args.npk_args.output_vars + args.npk_args.forecast_length * args.npk_args.weather_vars
