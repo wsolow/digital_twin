@@ -41,7 +41,7 @@ class NPKDictObservationWrapper(gym.ObservationWrapper):
 
     def get_output_vars(self):
         """Return a list of the output vars"""
-        return self.output_vars + self.weather_vars + ["DAYS"]
+        return ["DATE"] + self.output_vars + self.weather_vars + ["DAYS"]
     
     def observation(self, obs):
         """Puts the outputted variables in a dictionary.
@@ -53,7 +53,7 @@ class NPKDictObservationWrapper(gym.ObservationWrapper):
         Args:
             observation
         """
-        keys = self.output_vars + self.forecast_vars + ["DAYS"]
+        keys = ["DATE"] + self.output_vars + self.forecast_vars + ["DAYS"]
         return dict([(keys[i], obs[i]) for i in range(len(keys))])
 
     def reset(self, **kwargs):

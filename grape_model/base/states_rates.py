@@ -1,11 +1,8 @@
-"""Base class for for State Rates and Parameters that each simulation object
-in the WOFOST model has.
+"""
+Base class for for State Rates and Parameters that each simulation object
+has. 
+Used for parsing from file
 
-In general these classes are not to be used directly, but are to be subclassed
-when creating PCSE simulation units.
-
-Written by: Allard de Wit (allard.dewit@wur.nl), April 2014
-Modified by Will Solow, 2024
 """
 import logging
 
@@ -32,38 +29,8 @@ def check_publish(publish):
     return set(publish)
 
 class ParamTemplate(HasTraits):
-    """Template for storing parameter values.
-
-    This is meant to be subclassed by the actual class where the parameters
-    are defined.
-
-    example::
-
-        >>> import pcse
-        >>> from pcse.base import ParamTemplate
-        >>> from pcse.traitlets import Float
-        >>>
-        >>>
-        >>> class Parameters(ParamTemplate):
-        ...     A = Float()
-        ...     B = Float()
-        ...     C = Float()
-        ...
-        >>> parvalues = {"A" :1., "B" :-99, "C":2.45}
-        >>> params = Parameters(parvalues)
-        >>> params.A
-        1.0
-        >>> params.A; params.B; params.C
-        1.0
-        -99.0
-        2.4500000000000002
-        >>> parvalues = {"A" :1., "B" :-99}
-        >>> params = Parameters(parvalues)
-        Traceback (most recent call last):
-          File "<stdin>", line 1, in <module>
-          File "pcse/base.py", line 205, in __init__
-            raise exc.ParameterError(msg)
-        pcse.exceptions.ParameterError: Value for parameter C missing.
+    """
+    Template for storing parameter values.
     """
 
     def __init__(self, parvalues:dict):

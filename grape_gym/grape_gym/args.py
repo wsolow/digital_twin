@@ -165,9 +165,9 @@ class NPK_Args:
     
     """Output Variables"""
     """See env_config/README.md for more information"""
-    output_vars: list = field(default_factory = lambda: ['DVS'])
+    output_vars: list = field(default_factory = lambda: ['DVR', 'DVS', 'STAGE_INT'])
     """Weather Variables"""
-    weather_vars: list = field(default_factory = lambda: ['IRRAD', 'TEMP', 'RAIN'])
+    weather_vars: list = field(default_factory = lambda: ['IRRAD', 'TMIN', 'TMAX', 'TEMP', 'RAIN'])
 
     """Intervention Interval"""
     intvn_interval: int = 1

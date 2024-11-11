@@ -133,23 +133,6 @@ class BaseSiteCalendar(HasTraits, DispatcherObject):
         """
         self.in_site_cycle = False
 
-class SiteCalendar(BaseSiteCalendar):
-    """A site calendar for managing the site cycle.
-
-    A `SiteCalendar` object is responsible for storing, checking, starting and ending
-    the soil cycle. The site calendar is initialized by providing the parameters needed
-    for defining the site cycle. At each time step the instance of `SiteCalendar` is called
-    and at dates defined by its parameters it initiates the appropriate actions:
-
-    :return: A SiteCalendar Instance
-    """
-    
-    def __init__(self, kiosk, site_name: str=None, variation_name: str=None, \
-                 site_start_date: date=None, site_end_date: date=None, \
-                 latitude:float=None, longitude:float=None, year:int=None):
-        super().__init__(kiosk, site_name, variation_name, site_start_date, \
-                         site_end_date, latitude, longitude, year)
-
 class PerennialSiteCalendar(BaseSiteCalendar):
     """A site calendar for managing the site cycle.
 
@@ -179,7 +162,7 @@ class BaseCropCalendar(HasTraits, DispatcherObject):
     crop_start_date = Instance(date)
     crop_start_type = Enum(["sowing", "emergence"])
     crop_end_date = Instance(date)
-    crop_end_type = Enum(["emergence", "maturity", "harvest", "death", "max_duration"])
+    crop_end_type = Enum(["harvest"])
     max_duration = Int()
 
     # system parameters
@@ -194,7 +177,7 @@ class BaseCropCalendar(HasTraits, DispatcherObject):
 
     def __init__(self, kiosk, crop_name: str=None, variety_name: str=None, \
                  crop_start_date: date=None, crop_start_type: date=None, 
-                 crop_end_date: date=None, crop_end_type: date=None, max_duration: int=None):
+                 crop_end_date: date=None, crop_end_type: date=None):
         """Initialize Crop Calendar Class
 
         Args:
@@ -205,7 +188,6 @@ class BaseCropCalendar(HasTraits, DispatcherObject):
             param crop_start_type: Start type of the crop simulation ('sowing', 'emergence')
             param crop_end_date: End date of the crop simulation
             param crop_end_type: End type of the crop simulation ('harvest', 'maturity', 'death')
-            param max_duration: Integer describing the maximum duration of the crop cycle
         """
         # set up logging
         loggername = "%s.%s" % (self.__class__.__module__,
@@ -219,7 +201,6 @@ class BaseCropCalendar(HasTraits, DispatcherObject):
         self.crop_start_type = crop_start_type
         self.crop_end_date = crop_end_date
         self.crop_end_type = crop_end_type
-        self.max_duration = max_duration
 
         self._connect_signal(self._on_CROP_FINISH, signal=signals.crop_finish)
         self._connect_signal(self._on_CROP_START, signal=signals.crop_start)
@@ -272,13 +253,9 @@ class BaseCropCalendar(HasTraits, DispatcherObject):
         finish_type = None
         if self.in_crop_cycle:
             # Check if crop_end_date is reached for CROP_END_TYPE harvest
-            if self.crop_end_type in ["harvest"]:
+            if self.crop_end_type in ["max_duration"]:
                 if day == self.crop_end_date:
-                    finish_type = "harvest"
-
-            # Check for forced stop because maximum duration is reached
-            if self.in_crop_cycle and self.duration == self.max_duration:
-                finish_type = "max_duration"
+                    finish_type = "max_duration"
 
         # If finish condition is reached send a signal to finish the crop
         if finish_type is not None:
@@ -295,31 +272,7 @@ class BaseCropCalendar(HasTraits, DispatcherObject):
         """Register that a crop has started"""
         self.in_crop_cycle = True
         self.duration = 0
-
-class CropCalendar(BaseCropCalendar):
-    """A crop calendar for managing the crop cycle.
-
-    A `CropCalendar` object is responsible for storing, checking, starting and ending
-    the crop cycle. The crop calendar is initialized by providing the parameters needed
-    for defining the crop cycle. At each time step the instance of `CropCalendar` is called
-    and at dates defined by its parameters it initiates the appropriate actions:
-
-    - sowing/emergence: A `crop_start` signal is dispatched including the parameters needed to
-      start the new crop simulation object
-    - maturity/harvest: the crop cycle is ended by dispatching a `crop_finish` signal with the
-      appropriate parameters.
-
-    
-    :return: A CropCalendar Instance
-    """
-
-
-    def __init__(self, kiosk, crop_name: str=None, variety_name: str=None, \
-                 crop_start_date: date=None, crop_start_type: date=None, 
-                 crop_end_date: date=None, crop_end_type: date=None, max_duration: int=None):
-        super().__init__(kiosk, crop_name, variety_name, crop_start_date, \
-                         crop_start_type, crop_end_date, crop_end_type, max_duration )
-        
+       
 class PerennialCropCalendar(BaseCropCalendar):
     """A crop calendar for managing the crop cycle.
 
@@ -337,13 +290,13 @@ class PerennialCropCalendar(BaseCropCalendar):
     :return: A CropCalendar Instance
     """
 
-    crop_start_type = Enum(["sowing", "emergence", "dormant", "endodorm", "ecodorm"])
+    crop_start_type = Enum(["budbreak", "endodorm", "ecodorm"])
 
     def __init__(self, kiosk, crop_name: str=None, variety_name: str=None, \
                  crop_start_date: date=None, crop_start_type: date=None, 
-                 crop_end_date: date=None, crop_end_type: date=None, max_duration: int=None):
+                 crop_end_date: date=None, crop_end_type: date=None):
         super().__init__(kiosk, crop_name, variety_name, crop_start_date, \
-                         crop_start_type, crop_end_date, crop_end_type, max_duration )
+                         crop_start_type, crop_end_date, crop_end_type )
    
 class BaseAgroManager(AncillaryObject):
     """Base class for Agromangement
@@ -389,55 +342,6 @@ class BaseAgroManager(AncillaryObject):
         """
         self._send_signal(signal=signals.terminate)
     
-class AgroManagerAnnual(BaseAgroManager):
-    """Class for continuous AgroManagement actions including crop rotations and events.
-
-    The AgroManager takes care of executing agromanagent actions that typically occur on agricultural
-    fields including planting and harvesting of the crop, as well as management actions such as fertilizer
-    application, irrigation and spraying.
-
-    The agromanagement during the simulation is implemented as a sequence of campaigns. Campaigns start on a
-    prescribed calendar date and finalize when the next campaign starts. The simulation ends either explicitly by
-    provided a trailing empty campaign or by deriving the end date from the crop calendar and timed events in the
-    last campaign. See also the section below on `end_date` property.
-
-    Each campaign is characterized by zero or one crop calendar, zero or more timed events and zero or more
-    state events.
-    """
-
-    def initialize(self, kiosk:VariableKiosk, agromanagement:dict):
-        """Initialize the AgroManager.
-
-        :param kiosk: A PCSE variable Kiosk
-        :param agromanagement: the agromanagement definition, see the example above in YAML.
-        """
-        self.kiosk = kiosk
-
-        # Connect CROP_FINISH signal with handler
-        self._connect_signal(self._on_SITE_FINISH, signals.site_finish)
-
-        # If there is an "AgroManagement" item defined then we first need to get
-        # the contents defined within that item
-        if "AgroManagement" in agromanagement:
-            agromanagement = agromanagement["AgroManagement"]
-
-        # Validate that a site calendar and crop calendar are present
-        sc_def = agromanagement['SiteCalendar']
-        if sc_def is not None:
-            sc = SiteCalendar(kiosk, **sc_def)
-            sc.validate()
-            self._site_calendar = sc
-
-            self.start_date = self._site_calendar.site_start_date
-            self.end_date = self._site_calendar.site_end_date
-        
-        # Get and validate the crop calendar
-        cc_def = agromanagement['CropCalendar']
-        if cc_def is not None and sc_def is not None:
-            cc = CropCalendar(kiosk, **cc_def)
-            cc.validate(self._site_calendar.site_start_date, self._site_calendar.site_end_date)
-            self._crop_calendar = cc
-
 class AgroManagerPerennial(BaseAgroManager):
     """Class for continuous AgroManagement actions including crop rotations and events.
 
@@ -482,32 +386,9 @@ class AgroManagerPerennial(BaseAgroManager):
         
         # Get and validate the crop calendar
         cc_def = agromanagement['CropCalendar']
+        cc_def['crop_start_date'] = agromanagement['SiteCalendar']['site_start_date']
+        cc_def['crop_end_date'] = agromanagement['SiteCalendar']['site_end_date']
         if cc_def is not None and sc_def is not None:
             cc = PerennialCropCalendar(kiosk, **cc_def)
             cc.validate(self._site_calendar.site_start_date, self._site_calendar.site_end_date)
             self._crop_calendar = cc
-
-    def __call__(self, day:date, drv):
-        """Calls the AgroManager to execute and crop calendar actions, timed or state events.
-
-        :param day: The current simulation date
-        :param drv: The driving variables for the current day
-        :return: None
-        """
-        if self._site_calendar is not None:
-            self._site_calendar(day)
-
-        # call handlers for the crop calendar, timed and state events
-        if self._crop_calendar is not None:
-            self._crop_calendar(day)
-
-
-    def _on_SITE_FINISH(self, day:date):
-        """Send signal to terminate after the crop cycle finishes.
-
-        The simulation will be terminated when the following conditions are met:
-        1. There are no campaigns defined after the current campaign
-        2. There are no StateEvents active
-        3. There are no TimedEvents scheduled after the current date.
-        """
-        self._send_signal(signal=signals.terminate)

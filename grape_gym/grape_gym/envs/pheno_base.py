@@ -69,8 +69,8 @@ class NPK_Env(gym.Env):
 
         # Get information from the agromanagement file
         self.location, self.year = self._load_site_parameters(self.agromanagement)
-        self.crop_start_date = self.agromanagement['CropCalendar']['crop_start_date']
-        self.crop_end_date = self.agromanagement['CropCalendar']['crop_end_date']
+        self.crop_start_date = self.agromanagement['SiteCalendar']['site_start_date']
+        self.crop_end_date = self.agromanagement['SiteCalendar']['site_end_date']
         self.site_start_date = self.agromanagement['SiteCalendar']['site_start_date']
         self.site_end_date = self.agromanagement['SiteCalendar']['site_end_date'] 
         self.year_difference = self.crop_start_date.year - self.site_start_date.year     
@@ -87,8 +87,8 @@ class NPK_Env(gym.Env):
         utils.set_params(self, self.wofost_params)
         
         # Initialize crop engine
-        self.model = GrapePhenologyEngine(self.parameterprovider, self.weatherdataprovider,
-                                         self.agromanagement, config=self.config)
+        self.model = GrapePhenologyEngine(parameterprovider=self.parameterprovider, weatherdataprovider=self.weatherdataprovider,
+                                         agromanagement=self.agromanagement, config=self.config)
         
         print('Successfully initialized WOFOST Engine. Ready to run simulation...')
         self.date = self.site_start_date
@@ -112,7 +112,8 @@ class NPK_Env(gym.Env):
 
     def get_output_vars(self):
         """Return a list of the output vars"""
-        return self.output_vars + self.weather_vars + ["DAYS"]
+        print('getting output vars')
+        return ["DATE"] + self.output_vars + self.weather_vars + ["DAYS"]
     
     def seed(self, seed: int=None):
         """Set the seed for the environment using Gym seeding.
@@ -172,8 +173,8 @@ class NPK_Env(gym.Env):
         self.date = self.site_start_date
 
         # Update agromanagement dictionary
-        self.agromanagement['CropCalendar']['crop_start_date'] = self.crop_start_date
-        self.agromanagement['CropCalendar']['crop_end_date'] = self.crop_end_date
+        self.agromanagement['SiteCalendar']['site_start_date'] = self.crop_start_date
+        self.agromanagement['SiteCalendar']['site_end_date'] = self.crop_end_date
         self.agromanagement['SiteCalendar']['site_start_date'] = self.site_start_date
         self.agromanagement['SiteCalendar']['site_end_date'] = self.site_end_date
     
@@ -184,11 +185,17 @@ class NPK_Env(gym.Env):
         utils.set_params(self, self.wofost_params)
 
         # Reset model
-        self.model = GrapePhenologyEngine(self.parameterprovider, self.weatherdataprovider,
-                                         self.agromanagement, config=self.config)
+        self.model = GrapePhenologyEngine(parameterprovider=self.parameterprovider, weatherdataprovider=self.weatherdataprovider,
+                                         agromanagement=self.agromanagement, config=self.config)
         
         # Generate initial output
-        output = self._run_simulation()
+        output = pd.DataFrame(self.model.get_output()).set_index("DATE")
+
+        # Fill missing values with nans - arises when crop has not been
+        # planted yet. 
+        with pd.option_context("future.no_silent_downcasting", True):
+            output = output.fillna(value=np.nan).infer_objects(copy=False)
+
         observation = self._process_output(output)
 
         return observation, self.log
@@ -360,7 +367,7 @@ class NPK_Env(gym.Env):
         # Count the number of days elapsed - for time-based policies
         days_elapsed = self.date - self.site_start_date
 
-        observation = np.concatenate([crop_observation, weather_observation.flatten(), [days_elapsed.days]])
+        observation = np.concatenate([[self.date], crop_observation, weather_observation.flatten(), [days_elapsed.days]])
 
         for i in range(len(observation)):
             if isinstance(observation[i], datetime.date):
@@ -371,7 +378,7 @@ class NPK_Env(gym.Env):
         """Run the WOFOST model for the specified number of days
         """
         self.model.run(days=self.intervention_interval)
-        output = pd.DataFrame(self.model.get_output()).set_index("day")
+        output = pd.DataFrame(self.model.get_output()).set_index("DATE")
 
         # Fill missing values with nans - arises when crop has not been
         # planted yet. 

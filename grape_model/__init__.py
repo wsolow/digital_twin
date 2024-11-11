@@ -40,7 +40,6 @@ __stable__ = True
 __version__ = "5.5.6"
 
 import os
-
 # Import first to avoid circular imports
 from . import util
 from .utils import exceptions, decorators, traitlets, signals

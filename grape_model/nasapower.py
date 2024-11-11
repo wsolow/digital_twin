@@ -78,6 +78,13 @@ class SlotPickleMixin(object):
         for slot, value in state.items():
             setattr(self, slot, value)
 
+class FileWeatherDataContainer(SlotPickleMixin):
+    """
+    Class for storing weather data elements from file
+    """
+    def __init__(self, vars:dict):
+        for k, v in vars.items():
+            SlotPickleMixin.__setattr__(self,k,v)
 
 class WeatherDataContainer(SlotPickleMixin):
     """Class for storing weather data elements.
@@ -114,7 +121,7 @@ class WeatherDataContainer(SlotPickleMixin):
     optional = ["SNOWDEPTH", "TEMP", "TMINRA"]
     # In the future __slots__ can be extended or attribute setting can be allowed
     # by add '__dict__' to __slots__.
-    __slots__ = sitevar + required + optional + ["DAY"]
+    __slots__ = sitevar + required + optional + ["DATE"]
 
     units = {"IRRAD": "J/m2/day", "TMIN": "Celsius", "TMAX": "Celsius", "VAP": "hPa",
              "RAIN": "cm/day", "E0": "cm/day", "ES0": "cm/day", "ET0": "cm/day",

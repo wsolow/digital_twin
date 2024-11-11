@@ -56,19 +56,22 @@ if __name__ == "__main__":
             break
     all_obs = np.array([list(d.values()) for d in obs_arr])
 
-
     df = pd.DataFrame(data=np.array(all_obs), columns=env.get_output_vars())
-    # df.to_csv("data/below_n.csv")
-
+    df.to_csv("data/dynamics_model.csv")
 
     all_vars = args.npk_args.output_vars + args.npk_args.forecast_length * args.npk_args.weather_vars
     print(f'SUCCESS in {args.env_id}')
 
+    plt.plot(all_obs[:,6], all_obs[:,1])
+    plt.xlabel('TEMP')
+    plt.ylabel('TSUM')
+    plt.show()
 
     for i in range(len(all_vars)):
         plt.figure(i)
         plt.title(all_vars[i])
-        plt.plot(all_obs[ :, i])
+        print(f'{i}: {all_vars[i]}')
+        plt.plot(all_obs[ :, i+1])
         plt.xlim(0-10, all_obs.shape[0]+10) 
         plt.xlabel('Days')
     plt.show()

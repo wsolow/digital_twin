@@ -5,11 +5,9 @@ import gymnasium as gym
 from datetime import datetime
 from grape_gym.args import WOFOST_Args, Agro_Args
 
-
 from grape_model.soil.soil_wrappers import BaseSoilModuleWrapper, SoilModuleWrapper_LNPKW
 from grape_model.crop.phenology import Grape_Phenology
 from grape_model.agromanager import BaseAgroManager, AgroManagerPerennial
-
 
 def make_config(soil: BaseSoilModuleWrapper=SoilModuleWrapper_LNPKW, crop: Grape_Phenology=Grape_Phenology, \
                 agro: BaseAgroManager=AgroManagerPerennial):
@@ -45,7 +43,7 @@ def make_config(soil: BaseSoilModuleWrapper=SoilModuleWrapper_LNPKW, crop: Grape
     OUTPUT_VARS = [ 
    
         # PHENOLOGY STATES
-        "DVS", "TSUM", "TSUME", "STAGE", "DOP", "DOC", "DON", "DOB", "DOF", "DOV", "DOR", "DOL",
+        "DVS", "TSUM", "TSUME", "STAGE", "DOP", "DOC", "DON", "DOB", "DOF", "DOV", "DOR", "DOL", "STAGE_INT",
         # PHENOLOGY RATES
         "DTSUME", "DTSUM", "DVR", "DCU",
         ]

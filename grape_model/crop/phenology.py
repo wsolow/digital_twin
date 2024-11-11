@@ -9,7 +9,7 @@ Modified by Will Solow, 2024
 """
 import datetime
 
-from ..utils.traitlets import Float, Instance, Enum, Bool, Int
+from ..utils.traitlets import Float, Instance, Enum, Bool, Int, Dict
 from ..utils.decorators import prepare_rates, prepare_states
 
 from ..util import limit, AfgenTrait, daylength
@@ -121,6 +121,7 @@ class Grape_Phenology(SimulationObject):
 
     _DAY_LENGTH = Float(12.0) # Helper variable for daylength
     _CU_FLAG    = Bool(False) # Helper flag for if chilling units should be accumulated
+    _STAGE_VAL = Dict({"ecodorm":0, "budbreak":1, "flowering":2, "verasion":3, "ripe":4, "endodorm":5})
 
     class Parameters(ParamTemplate):
         CROP_START_TYPE = Enum(["predorm", "endodorm", "ecodorm"])
@@ -153,8 +154,8 @@ class Grape_Phenology(SimulationObject):
         CSUM   = Float(-99.) # Chilling sum state
         # Based on the Elkhorn-Lorenz Grape Phenology Stage
         STAGE  = Enum(["endodorm", "ecodorm", "budbreak", "flowering", "verasion", "ripe"])
+        STAGE_INT = Int(-.99) # Int of Stage
         DOP    = Instance(datetime.date) # Day of planting
-        
         DOB    = Instance(datetime.date) # Day of bud break
         DOL    = Instance(datetime.date) # Day of Flowering
         DOV    = Instance(datetime.date) # Day of Verasion
@@ -172,7 +173,6 @@ class Grape_Phenology(SimulationObject):
         self.params = self.Parameters(parvalues)
         self.kiosk = kiosk
 
-        self._connect_signal(self._on_CROP_FINISH, signal=signals.crop_finish)
         self._connect_signal(self._on_DORMANT, signal=signals.crop_dormant)
         # Define initial states
         DVS, DOP, STAGE = self._get_initial_stage(day)
@@ -182,10 +182,9 @@ class Grape_Phenology(SimulationObject):
                                                    "DOL", "DOV", "DOR", "DOC" ],
                                           TSUM=0., TSUME=0., DVS=DVS, STAGE=STAGE, 
                                           DOP=DOP, CSUM=0.,DOB=None, DOL=None, DOV=None,
-                                          DOR=None, DOC=None,DON=None)
+                                          DOR=None, DOC=None,DON=None, STAGE_INT=self._STAGE_VAL[STAGE])
         
         self.rates = self.RateVariables(kiosk, publish=["DTSUME", "DTSUM", "DVR", "DCU"])
-
 
     def _get_initial_stage(self, day:datetime.date):
         """Set the initial state of the crop given the start type
@@ -282,6 +281,7 @@ class Grape_Phenology(SimulationObject):
         s.DVS += r.DVR
         s.TSUM += r.DTSUM
         s.CSUM += r.DCU
+        s.STAGE_INT = self._STAGE_VAL[s.STAGE]
 
         # Check if a new stage is reached
         if s.STAGE == "endodorm":
@@ -357,19 +357,6 @@ class Grape_Phenology(SimulationObject):
         
         msg = "Changed phenological stage '%s' to '%s' on %s"
         self.logger.info(msg % (current_STAGE, s.STAGE, day))
-
-    def _on_CROP_HARVEST(self, day):
-        if self.params.CROP_END_TYPE in ["harvest"]:
-            self._send_signal(signal=signals.crop_finish,day=day,finish_type="harvest",
-                              crop_delete=True)
-
-    def _on_CROP_FINISH(self, day, finish_type=None):
-        """Handler for setting day of harvest (DOH). Although DOH is not
-        strictly related to phenology (but to management) this is the most
-        logical place to put it.
-        """
-        if finish_type in ['harvest']:
-            self._for_finalize["DOH"] = day
 
     def _on_DORMANT(self, day:datetime.date):
         """Handler for dormant signal. Reset all nonessential states and rates to 0

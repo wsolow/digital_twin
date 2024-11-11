@@ -110,9 +110,10 @@ class Engine(BaseEngine):
     _saved_summary_output = List()
     _saved_terminal_output = Dict()
 
-    def __init__(self, parameterprovider: ParameterProvider, \
-                 weatherdataprovider:WeatherDataProvider, agromanagement:BaseAgroManager, \
-                    config: dict=None):
+    def __init__(self, parameterprovider:ParameterProvider=None, \
+                 agromanagement:BaseAgroManager=None,\
+                    weatherdataprovider:WeatherDataProvider=None, \
+                    drv:dict=None, config: dict=None):
         """Initialize the Engine Class
 
         Args:
@@ -159,6 +160,9 @@ class Engine(BaseEngine):
         self.weatherdataprovider = weatherdataprovider
         self.drv = self._get_driving_variables(self.day)
 
+        if self.weatherdataprovider is None:
+            self.drv = {'LAT':46, 'LONG':-120, 'TEMP': 4, 'IRRAD': 120000}
+
         # Call AgroManagement module for management actions at initialization
         self.agromanager(self.day, self.drv)
 
@@ -204,7 +208,7 @@ class Engine(BaseEngine):
         # Flush rate variables from the kiosk after state updates
         self.kiosk.flush_rates()
 
-    def _run(self):
+    def _run(self, drv:list=None):
         """Make one time step of the simulation.
         """
         # Update timer
@@ -213,10 +217,15 @@ class Engine(BaseEngine):
         self.integrate(self.day, delt)
 
         # Driving variables
-        self.drv = self._get_driving_variables(self.day)
+        if drv is None:
+            self.drv = self._get_driving_variables(self.day)
+        else:
+            # Add based on list
+            for k,v in drv.items:
+                self.drv.add_variable(k, v, '')
 
         # Agromanagement decisions
-        self.agromanager(self.day, self.drv)
+        self.agromanager(self.day, drv)
 
         # Rate calculation
         self.calc_rates(self.day, self.drv)
@@ -225,7 +234,7 @@ class Engine(BaseEngine):
             self._terminate_simulation(self.day)
 
     # Return the crop states, soil states, and day
-    def run(self, days: int=1):
+    def run(self, drv:list=None, days: int=1):
         """Advances the system state with given number of days"""
 
         days_done = 0
@@ -379,6 +388,9 @@ class Engine(BaseEngine):
     def _get_driving_variables(self, day:date):
         """Get driving variables, compute derived properties and return it.
         """
+        if self.weatherdataprovider is None:
+            return None
+        
         drv = self.weatherdataprovider(day)
         
         # average temperature and average daytemperature (if needed)
@@ -396,7 +408,7 @@ class Engine(BaseEngine):
         self.flag_output = False
 
         # find current value of variables to are to be saved
-        states = {"day":day}
+        states = {"DATE":day}
         for var in self.mconf.OUTPUT_VARS:
             states[var] = self.get_variable(var)
         self._saved_output = [states]
@@ -481,10 +493,12 @@ class GrapePhenologyEngine(Engine):
     :param agromanagement: Agromanagement data
     """
 
-    def __init__(self, parameterprovider:ParameterProvider, \
-                 weatherdataprovider:WeatherDataProvider, agromanagement:BaseAgroManager, \
-                 config:dict):
+    def __init__(self, parameterprovider:ParameterProvider=None, \
+                 weatherdataprovider:WeatherDataProvider=None, \
+                    agromanagement:BaseAgroManager=None, \
+                 config:dict=None ):
         """Initialize WOFOST8Engine Class
         """
-        Engine.__init__(self, parameterprovider, weatherdataprovider, agromanagement,
+        Engine.__init__(self, parameterprovider=parameterprovider, 
+                        weatherdataprovider=weatherdataprovider, agromanagement=agromanagement,
                     config=config)
