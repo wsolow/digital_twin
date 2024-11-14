@@ -10,8 +10,8 @@ import yaml
 import datetime
 from datetime import date
 
-from grape_twin.engine import GrapePhenologyEngine
-from grape_twin.nasapower import FileWeatherDataContainer
+from grape_model.engine import GrapePhenologyEngine
+from grape_model.nasapower import FileWeatherDataContainer
 from load_data import load_and_process_data
 
 class DigitalTwin():
@@ -40,7 +40,7 @@ class DigitalTwin():
 
         # Create model 
         self.true_model = GrapeModelFromFile(self.data, self.output_vars+self.weather_vars)
-        self.model = GrapeModel(self.crop_config, drv=self.true_model.get_drv(self.day, self.weather_vars), args=args)
+        self.model = GrapeModel(self.crop_config, drv=self.true_model.get_drv(self.day, self.weather_vars), params=args)
 
     def run(self):
         """
@@ -104,7 +104,7 @@ class DigitalTwin():
 
         # Create model 
         self.true_model = GrapeModelFromFile(self.data, self.output_vars+self.weather_vars)
-        self.model = GrapeModel(self.crop_config, drv=self.true_model.get_drv(self.day, self.weather_vars), args=args)
+        self.model = GrapeModel(self.crop_config, drv=self.true_model.get_drv(self.day, self.weather_vars), params=args)
 
         return self.run_all()
 
@@ -236,7 +236,7 @@ class GrapeModelFromFile():
         Get the driving variables as a weather data container
         """
         weather_output = dict(self.data.iloc[self.days_elapsed][weather_vars])
-
+        
         drv = FileWeatherDataContainer(**weather_output)
         return drv
     
@@ -249,11 +249,11 @@ class GrapeModelFromFile():
 
 class GrapeModel():
     
-    def __init__(self, crop_config:dict, drv=None, args=None):
+    def __init__(self, crop_config:dict, drv=None, params=None):
         """
         Initialize the grape model
         """
-        self.model = GrapePhenologyEngine(config=crop_config, drv=drv, args=args)
+        self.model = GrapePhenologyEngine(config=crop_config, drv=drv, params=params)
     
     def run(self, date:date, drv):
         """

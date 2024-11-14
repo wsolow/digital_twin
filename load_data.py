@@ -40,24 +40,27 @@ def load_and_process_data(cultivar: str):
 
     # Remove all grape stages we are not interested in predicting
     df.loc[~df["PHENOLOGY"].isin(PHENO_STAGES),"PHENOLOGY"] = np.nan
+
+
     # Get the switch to the dormancy season so we can add endodorm
     for ds in np.argwhere(np.diff(df["DORMANT_SEASON"],prepend=[0]) == 1):
-        df.loc[ds, "PHENOLOGY"] = "Endodorm"
+        df.loc[ds, "PHENOLOGY"] = PHENOLOGY_INT["Endodorm"]
 
     # TODO: With real values
     # For backfilling purposes
     for ed in np.argwhere(df["YEAR_JDAY"]==1):
-        df.loc[ed, "PHENOLOGY"] = "Ecodorm"
+        df.loc[ed, "PHENOLOGY"] = PHENOLOGY_INT["Ecodorm"]
     # Arbitrarily choose a day for ecodormancy to start, currently november 30th
     for ed in np.argwhere(df["YEAR_JDAY"]==334):
-        df.loc[ed, "PHENOLOGY"] = "Ecodorm"
+        df.loc[ed, "PHENOLOGY"] = PHENOLOGY_INT["Ecodorm"]
 
     # Forward fill with non-na values
     df["PHENOLOGY"] = df["PHENOLOGY"].ffill()
     
     # Covert phenology to int values
     for i in range(len(df["PHENOLOGY"])):
-        df.loc[i,"PHENOLOGY"] = PHENOLOGY_INT[df["PHENOLOGY"].iloc[i]]
+        if isinstance(df.loc[i,"PHENOLOGY"], str):
+            df.loc[i,"PHENOLOGY"] = PHENOLOGY_INT[df["PHENOLOGY"].iloc[i]]
    
     # Drop all columns we don't care about
     df.drop(columns=["AWN_STATION", "SEASON", "SEASON_JDAY", "LTE10", "LTE50", "LTE90", 

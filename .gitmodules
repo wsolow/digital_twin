@@ -1,0 +1,3 @@
+[submodule "grape_model"]
+	path = grape_model
+	url = git@github.com:wsolow/grape_model.git

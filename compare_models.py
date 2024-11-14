@@ -8,7 +8,7 @@ import digtwin
 from digtwin.digital_twin import DigitalTwin
 import matplotlib.pyplot as plt
 import numpy as np
-from grape_twin import engine
+from grape_model import engine
 import sys
 import load_data as ld
 import yaml
@@ -53,7 +53,7 @@ class CompareModel():
             plt.legend()
             os.makedirs(f'{path}/{self.cultivar}',exist_ok=True )
             plt.savefig(f'{path}/{self.cultivar}/{self.cultivar}_{start}_{end}.png')
-
+            plt.close()
     def load_config_data(self):
         config = yaml.safe_load(open(self.config_fpath))
         twin_config = config["DigTwinConfig"]
