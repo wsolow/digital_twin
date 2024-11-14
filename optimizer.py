@@ -236,7 +236,7 @@ class BayesianStageOptimizer():
     
     def load_config_data(self):
         config = yaml.safe_load(open(self.config_file))
-        twin_config = config["DigTwinConfig"]
+        twin_config = config["ModelConfig"]
         data = pd.read_csv(os.path.join(twin_config["base_fpath"], twin_config["digtwin_file"]), index_col=0)
         return data, twin_config["targ_cultivar"]
 

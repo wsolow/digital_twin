@@ -56,7 +56,7 @@ class CompareModel():
             plt.close()
     def load_config_data(self):
         config = yaml.safe_load(open(self.config_fpath))
-        twin_config = config["DigTwinConfig"]
+        twin_config = config["ModelConfig"]
         return twin_config
 
 
