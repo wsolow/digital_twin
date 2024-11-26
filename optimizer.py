@@ -644,8 +644,6 @@ def main():
     optim.save_model(f'models/{args.cultivar}.pkl')
     sys.exit(0)'''
     for cultivar in ld.GRAPE_CULTIVARS:
-        if cultivar != "Aligote":
-            continue
         print(f'{cultivar}')
         optim = BayesianNonDormantOptimizer(model_config_fpath="/Users/wsolow/Projects/digital_twin/env_config/config.yaml", cultivar=cultivar)
         optim.optimize_stages()
