@@ -17,11 +17,55 @@ import os
 from digtwin import digital_twin as dt
 import pickle
 
-class CompareModel():
+class CompareModel_Dormant():
 
     def __init__(self, config_fpath:str, cultivar:str):
 
-        self.data_list = ld.load_and_process_data(cultivar)
+        self.data_list, self.stage_list = ld.load_and_process_data_dormant(cultivar)
+        self.config_fpath = config_fpath
+        self.cultivar = cultivar
+        self.model_config = self.load_config_data()
+
+        self.digtwin = dt.DigitalTwin(config_fpath=self.config_fpath)
+
+        path = os.path.join(self.model_config["base_fpath"], f'{self.model_config["model_fpath"]}{cultivar}.pkl')
+        with open(path, "rb") as fp:
+            self.params = pickle.load(fp)
+
+    def run_all(self):
+        """
+        Run all files in data list
+        """
+        path = f'{self.model_config["base_fpath"]}{self.model_config["model_fpath"]}/figs'
+        for data in self.data_list:
+            true_output, model_output = self.digtwin.run_from_data(data, args=self.params)
+
+            x=np.arange(len(true_output))
+            plt.figure()
+            plt.plot(x, true_output["PHENOLOGY"],label='True Data')
+            plt.plot(x, model_output["PHENOLOGY"], label='Calibrated Model')
+            start = true_output["DATE"].iloc[0]
+            end = true_output["DATE"].iloc[-1]
+            plt.title(f"{self.cultivar} Phenology from {start} to {end}")
+            plt.ylabel('Phenology Stage')
+            plt.yticks(ticks=[0,1,2,3,4,5], labels=['Ecodorm', 'Bud Break', 'Flower', 'Verasion', 'Ripe', 'Endodorm'], rotation=45)
+            plt.xlabel(f'Days since {start}')
+            plt.legend()
+            os.makedirs(f'{path}/{self.cultivar}',exist_ok=True )
+            plt.savefig(f'{path}/{self.cultivar}/{self.cultivar}_{start}_{end}.png')
+            plt.close()
+    def load_config_data(self):
+        config = yaml.safe_load(open(self.config_fpath))
+        twin_config = config["ModelConfig"]
+        return twin_config
+
+
+
+class CompareModel_NonDormant():
+
+    def __init__(self, config_fpath:str, cultivar:str):
+
+        self.data_list, self.stage_list = ld.load_and_process_data_nondormant(cultivar)
         self.config_fpath = config_fpath
         self.cultivar = cultivar
         self.model_config = self.load_config_data()
@@ -64,10 +108,20 @@ if __name__ == "__main__":
 
     config_fpath = "/Users/wsolow/Projects/digital_twin/env_config/config.yaml"
     #cultivar = "Aligote"
+    import argparse
+    argsparser = argparse.ArgumentParser()
+    argsparser.add_argument('--cultivar', type=str, default="Aligote")
+    args = argsparser.parse_args()
+
+    #model = CompareModel(config_fpath, args.cultivar)
+    #model.run_all()
 
     for cultivar in ld.GRAPE_CULTIVARS:
-    
-        model = CompareModel(config_fpath, cultivar)
+        if cultivar != "Aligote":
+            continue
+        print(f'{cultivar}')
+
+        model = CompareModel_NonDormant(config_fpath, cultivar)
         model.run_all()
 
     sys.exit(0)

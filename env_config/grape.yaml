@@ -83,12 +83,16 @@ CropParameters:
         - temperature sum from budbreak to flowering
         - ['C.d']
       TSUM2:
-        - 882
+        - 659
         - temperature sum from flowering to verasion
         - ['C.d']
       TSUM3:
-        - 1463
+        - 581
         - temperature sum from verasion to ripe
+        - ['C.d']
+      TSUM4:
+        - 1000
+        - temperature sum from ripe onwards
         - ['C.d']
       DVSI:
         - 0.0

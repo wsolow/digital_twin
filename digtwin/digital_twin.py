@@ -12,7 +12,6 @@ from datetime import date
 
 from grape_model.engine import GrapePhenologyEngine
 from grape_model.nasapower import FileWeatherDataContainer
-from load_data import load_and_process_data
 
 class DigitalTwin():
     """
@@ -78,9 +77,17 @@ class DigitalTwin():
         # Start and end dates for twin
         self.start_date = datetime.datetime.strptime(data["DATE"].iloc[0], '%Y-%m-%d')
         self.end_date = datetime.datetime.strptime(data["DATE"].iloc[-1], '%Y-%m-%d')
+        endo = np.argwhere(data["PHENOLOGY"]==5).flatten()
+        self.data = data
+
+        #TODO: Run only until the onset of endodormancy
+        if len(endo) > 0:
+            self.end_date = datetime.datetime.strptime(data.loc[int(endo[0]),"DATE"], '%Y-%m-%d')
+            self.data = data.loc[:endo[0]]
+        
         self.day = self.start_date
 
-        self.data = data
+       
 
         self.crop_config["start_date"] = self.start_date
         self.crop_config["end_date"] = self.end_date
