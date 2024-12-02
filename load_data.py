@@ -289,6 +289,15 @@ def load_and_process_data_nondormant(cultivar: str):
         # If there are any nan values in the weather throw out the entire year
         if year_df.isnull().any().any():
             continue
+
+        if PHENOLOGY_INT["Budburst/Budbreak"] in pheno_states and PHENOLOGY_INT["Endodorm"] in pheno_states \
+            and PHENOLOGY_INT["Full Bloom"] not in pheno_states:
+            continue
+
+        if PHENOLOGY_INT["Full Bloom"] in pheno_states and PHENOLOGY_INT["Endodorm"] in pheno_states \
+            and PHENOLOGY_INT["Veraison 50%"] in pheno_states:
+            continue
+
         
         year_stages = []
         if PHENOLOGY_INT["Ecodorm"] in pheno_states:
