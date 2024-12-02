@@ -130,8 +130,6 @@ def load_and_process_data_dormant(cultivar: str):
         # Change Phenology dtype
         year_df["PHENOLOGY"] = year_df["PHENOLOGY"].astype('float64')
 
-        year_stages = [PHENOLOGY_INT["Ecodorm"], PHENOLOGY_INT["Endodorm"]]
-
         # Handle case where a state occurs out of order by removing it
         pheno_changes = np.argwhere(~np.isnan(year_df["PHENOLOGY"] )).flatten()
         pheno_change_vals = year_df.loc[pheno_changes, "PHENOLOGY"].to_numpy().astype('int64')
@@ -144,19 +142,25 @@ def load_and_process_data_dormant(cultivar: str):
         year_df["PHENOLOGY"] = year_df["PHENOLOGY"].ffill().astype('int64')
 
         pheno_states = np.unique(year_df["PHENOLOGY"])
+        print(pheno_states)
 
         # If there are any nan values in the weather throw out the entire year
         if year_df.isnull().any().any():
             continue
             
+        year_stages = []
+        if PHENOLOGY_INT["Ecodorm"] in pheno_states:
+            year_stages.append(PHENOLOGY_INT["Ecodorm"])
+        if PHENOLOGY_INT["Endodorm"] in pheno_states:
+            year_stages.append(PHENOLOGY_INT["Endodorm"])    
         if PHENOLOGY_INT["Budburst/Budbreak"] in pheno_states:
             year_stages.append(PHENOLOGY_INT["Budburst/Budbreak"])
-        
         if PHENOLOGY_INT["Full Bloom"] in pheno_states:
             year_stages.append(PHENOLOGY_INT["Full Bloom"])
-
         if PHENOLOGY_INT["Veraison 50%"] in pheno_states:
             year_stages.append(PHENOLOGY_INT["Veraison 50%"])
+        if PHENOLOGY_INT["Harvest"] in pheno_states:
+            year_stages.append(PHENOLOGY_INT["Harvest"])
 
         # Otherwise append
         df_list.append(year_df)
@@ -267,7 +271,7 @@ def load_and_process_data_nondormant(cultivar: str):
         # Change Phenology dtype
         year_df["PHENOLOGY"] = year_df["PHENOLOGY"].astype('float64')
 
-        year_stages = [PHENOLOGY_INT["Ecodorm"], PHENOLOGY_INT["Endodorm"]]
+        
 
         # Handle case where a state occurs out of order by removing it
         pheno_changes = np.argwhere(~np.isnan(year_df["PHENOLOGY"] )).flatten()
@@ -285,15 +289,20 @@ def load_and_process_data_nondormant(cultivar: str):
         # If there are any nan values in the weather throw out the entire year
         if year_df.isnull().any().any():
             continue
-            
+        
+        year_stages = []
+        if PHENOLOGY_INT["Ecodorm"] in pheno_states:
+            year_stages.append(PHENOLOGY_INT["Ecodorm"])
+        if PHENOLOGY_INT["Endodorm"] in pheno_states:
+            year_stages.append(PHENOLOGY_INT["Endodorm"])    
         if PHENOLOGY_INT["Budburst/Budbreak"] in pheno_states:
             year_stages.append(PHENOLOGY_INT["Budburst/Budbreak"])
-        
         if PHENOLOGY_INT["Full Bloom"] in pheno_states:
             year_stages.append(PHENOLOGY_INT["Full Bloom"])
-
         if PHENOLOGY_INT["Veraison 50%"] in pheno_states:
             year_stages.append(PHENOLOGY_INT["Veraison 50%"])
+        if PHENOLOGY_INT["Harvest"] in pheno_states:
+            year_stages.append(PHENOLOGY_INT["Harvest"])
 
         # Otherwise append
         df_list.append(year_df)

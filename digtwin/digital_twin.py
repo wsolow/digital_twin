@@ -87,8 +87,6 @@ class DigitalTwin():
         
         self.day = self.start_date
 
-       
-
         self.crop_config["start_date"] = self.start_date
         self.crop_config["end_date"] = self.end_date
 

@@ -1,4 +1,5 @@
-bayesian-optimization==2.0.0
+antlr4-python3-runtime==4.9.3
+-e git+ssh://git@github.com/wsolow/digital_twin.git@4d65fd778623b0be8a44fa47de3379e0d898b652#egg=bayesian_optimization&subdirectory=bayes_opt
 certifi==2024.8.30
 charset-normalizer==3.4.0
 cloudpickle==3.1.0
@@ -9,6 +10,7 @@ decorator==5.1.1
 docstring_parser==0.16
 Farama-Notifications==0.0.4
 fonttools==4.54.1
+-e git+ssh://git@github.com/wsolow/grape_model.git@a06fe341543bc64d813ff30a0ef3154162ddb288#egg=grape_model
 gymnasium==1.0.0
 idna==3.10
 ipython-genutils==0.2.0
@@ -18,6 +20,7 @@ markdown-it-py==3.0.0
 matplotlib==3.9.2
 mdurl==0.1.2
 numpy==2.1.2
+omegaconf==2.3.0
 packaging==24.1
 pandas==2.2.3
 pillow==11.0.0

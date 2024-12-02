@@ -9,8 +9,9 @@ import sys
 import os
 import datetime
 import copy
+from matplotlib import cm
 
-PHENOLOGY_INT = {"Ecodorm":0, "Budbreak":1, "Flowering":2, "Verasion":3, "Ripe":4, "Endodorm":5}
+PHENOLOGY_INT = {"Ecodorm":0, "Budbreak":1, "Flowering":2, "veraison":3, "Ripe":4, "Endodorm":5}
 
 class BayesianDormancyOptimizer():
     """
@@ -56,11 +57,11 @@ class BayesianDormancyOptimizer():
         Optimize crop model via individual stages
         """
         stage_opts = [self.eco_stage_optimizer, self.endo_stage_optimizer, self.budbreak_stage_optimizer, \
-                            self.flowering_stage_optimizer, self.verasion_stage_optimizer,\
+                            self.flowering_stage_optimizer, self.veraison_stage_optimizer,\
                             self.ripe_stage_optimizer]
         
         pbounds = [self.eco_pbounds, self.endo_pbounds, self.budbreak_pbounds, self.flowering_pbounds, \
-                   self.verasion_pbounds, self.ripe_pbounds]
+                   self.veraison_pbounds, self.ripe_pbounds]
         
         for i in range(len(stage_opts)):
             optimizer = BayesianOptimization(f=stage_opts[i], pbounds=pbounds[i])
@@ -101,15 +102,15 @@ class BayesianDormancyOptimizer():
     
         return self.optimizer(params, "Flowering")
     
-    def verasion_stage_optimizer(self, TSUM2, TEFFMX):
+    def veraison_stage_optimizer(self, TSUM2, TEFFMX):
         """
-        Optimizer function for verasion
+        Optimizer function for veraison
         """
         params = copy.deepcopy(self.params)
         params["TSUM2"] = TSUM2
         params["TEFFMX"] = TEFFMX
 
-        return self.optimizer(params, "Verasion")
+        return self.optimizer(params, "veraison")
 
     def ripe_stage_optimizer(self, TSUM3, TEFFMX):
         """
@@ -183,7 +184,7 @@ class BayesianDormancyOptimizer():
                             "TSUMEM":(10, 500)}
         self.flowering_pbounds = {"TSUM1":(100, 1000),
                                  "TEFFMX":(15,45)}
-        self.verasion_pbounds = {"TSUM2":(100,1000),
+        self.veraison_pbounds = {"TSUM2":(100,1000),
                                   "TEFFMX":(15,45)}
         self.ripe_pbounds =  {"TSUM3":(100,1000),
                                   "TEFFMX":(15, 45)}
@@ -334,16 +335,16 @@ class BayesianDormancyOptimizer():
         """
         self.digtwin.save_model(path)
 
-
 class BayesianNonDormantOptimizer():
     """
     Optimize each grape phenology stage iteratively 
     """
     def __init__(self, model_config_fpath:str=None, cultivar=None):
         
+        self.stages = ["Bud Break", "Flowering", "Veraison", "Ripe"]
         self.config_file = model_config_fpath
-        self.init_points = 10
-        self.n_iter = 20
+        self.init_points = 3
+        self.n_iter = 1
 
         data, cult = self.load_config_data()
 
@@ -379,17 +380,21 @@ class BayesianNonDormantOptimizer():
         Optimize crop model via individual stages
         """
         stage_opts = [self.budbreak_stage_optimizer, \
-                            self.flowering_stage_optimizer, self.verasion_stage_optimizer,\
+                            self.flowering_stage_optimizer, self.veraison_stage_optimizer,\
                             self.ripe_stage_optimizer]
         
         pbounds = [self.budbreak_pbounds, self.flowering_pbounds, \
-                   self.verasion_pbounds, self.ripe_pbounds]
+                   self.veraison_pbounds, self.ripe_pbounds]
+        
+        self.stage_params = []
         
         for i in range(len(stage_opts)):
             optimizer = BayesianOptimization(f=stage_opts[i], pbounds=pbounds[i])
             optimizer.maximize(init_points=self.init_points, n_iter=self.n_iter)
 
             self.update_params(optimizer.max["params"])
+
+            self.stage_params.append(np.array([[d['target'],*list(d['params'].values())] for d in optimizer.res]))
 
         self.opt_params = self.params
         return self.opt_params
@@ -414,15 +419,15 @@ class BayesianNonDormantOptimizer():
     
         return self.optimizer(params, "Flowering")
     
-    def verasion_stage_optimizer(self, TSUM2, TEFFMX):
+    def veraison_stage_optimizer(self, TSUM2, TEFFMX):
         """
-        Optimizer function for verasion
+        Optimizer function for veraison
         """
         params = copy.deepcopy(self.params)
         params["TSUM2"] = TSUM2
         params["TEFFMX"] = TEFFMX
 
-        return self.optimizer(params, "Verasion")
+        return self.optimizer(params, "veraison")
 
     def ripe_stage_optimizer(self, TSUM3, TEFFMX):
         """
@@ -483,7 +488,7 @@ class BayesianNonDormantOptimizer():
                             "TSUMEM":(10, 500)}
         self.flowering_pbounds = {"TSUM1":(100, 1000),
                                  "TEFFMX":(15,45)}
-        self.verasion_pbounds = {"TSUM2":(100,1000),
+        self.veraison_pbounds = {"TSUM2":(100,1000),
                                   "TEFFMX":(15,45)}
         self.ripe_pbounds =  {"TSUM3":(100,1000),
                                   "TEFFMX":(15, 45)}
@@ -632,6 +637,22 @@ class BayesianNonDormantOptimizer():
         """
         self.digtwin.save_model(path)
 
+    def plot_gp(self):
+        """
+        Plot the Gaussian Process Mean of all parameters
+        """
+
+        for i in range(len(self.stages)):
+            plt.figure(i)
+            fig, ax = plt.subplots(2,2)
+            xyz = self.stage_params[i]
+            print(xyz)
+            print(xyz[:,0])
+            ax[1,1].contourf([xyz[:,1]], [xyz[:,2]], [xyz[:,0]], cmap=cm.viridis)
+            ax[1,1].scatter(xyz[:,1],xyz[:,2],)
+            plt.show()
+            break
+
 def main():
 
     ''' import argparse
@@ -645,8 +666,11 @@ def main():
     sys.exit(0)'''
     for cultivar in ld.GRAPE_CULTIVARS:
         print(f'{cultivar}')
+        if cultivar != "Aligote":
+            continue
         optim = BayesianNonDormantOptimizer(model_config_fpath="/Users/wsolow/Projects/digital_twin/env_config/config.yaml", cultivar=cultivar)
         optim.optimize_stages()
+        optim.plot_gp()
         optim.save_model(f'models/{cultivar}.pkl')
 
 if __name__ == "__main__":

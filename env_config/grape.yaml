@@ -84,11 +84,11 @@ CropParameters:
         - ['C.d']
       TSUM2:
         - 659
-        - temperature sum from flowering to verasion
+        - temperature sum from flowering to veraison
         - ['C.d']
       TSUM3:
         - 581
-        - temperature sum from verasion to ripe
+        - temperature sum from veraison to ripe
         - ['C.d']
       TSUM4:
         - 1000
@@ -225,7 +225,7 @@ CropParameters:
         - ['C.d']
       TSUM2:
         - 761
-        - temperature sum from flowering to verasion
+        - temperature sum from flowering to veraison
         - ['C.d']
       TBASEM:
         - 9.89

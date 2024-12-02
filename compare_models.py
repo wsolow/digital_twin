@@ -48,7 +48,7 @@ class CompareModel_Dormant():
             end = true_output["DATE"].iloc[-1]
             plt.title(f"{self.cultivar} Phenology from {start} to {end}")
             plt.ylabel('Phenology Stage')
-            plt.yticks(ticks=[0,1,2,3,4,5], labels=['Ecodorm', 'Bud Break', 'Flower', 'Verasion', 'Ripe', 'Endodorm'], rotation=45)
+            plt.yticks(ticks=[0,1,2,3,4,5], labels=['Ecodorm', 'Bud Break', 'Flower', 'Veraison', 'Ripe', 'Endodorm'], rotation=45)
             plt.xlabel(f'Days since {start}')
             plt.legend()
             os.makedirs(f'{path}/{self.cultivar}',exist_ok=True )
@@ -92,7 +92,7 @@ class CompareModel_NonDormant():
             end = true_output["DATE"].iloc[-1]
             plt.title(f"{self.cultivar} Phenology from {start} to {end}")
             plt.ylabel('Phenology Stage')
-            plt.yticks(ticks=[0,1,2,3,4,5], labels=['Ecodorm', 'Bud Break', 'Flower', 'Verasion', 'Ripe', 'Endodorm'], rotation=45)
+            plt.yticks(ticks=[0,1,2,3,4,5], labels=['Ecodorm', 'Bud Break', 'Flower', 'Veraison', 'Ripe', 'Endodorm'], rotation=45)
             plt.xlabel(f'Days since {start}')
             plt.legend()
             os.makedirs(f'{path}/{self.cultivar}',exist_ok=True )
