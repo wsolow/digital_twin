@@ -330,7 +330,7 @@ class BayesianNonDormantOptimizer():
 
         if self.config.reset_base_fpath:
             twin_config["base_fpath"] = os.getcwd()
-            
+
         data = pd.read_csv(os.path.join(twin_config["base_fpath"], twin_config["digtwin_file"]), index_col=0)
         return data, twin_config["targ_cultivar"]
 
@@ -570,7 +570,7 @@ class BayesianNonDormantOptimizer():
 
         plt.close()
         
-def main():NO
+def main():
     warnings.filterwarnings("ignore",category=UserWarning)
     np.set_printoptions(suppress=True, precision=3)
 
