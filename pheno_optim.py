@@ -145,12 +145,10 @@ class BayesianNonDormantOptimizer():
             self.all_params.append(self.params)
             
             # Run the model and compute loss
-            start_time = time.time()
             if self.multithread:
                 target = self.compute_loss_parallel(stage)
             else:
                 target = self.compute_loss(stage)
-            print(time.time()-start_time)
             optimizer.register(target=target, params=x_probe)
             samples.append([target, *x_probe.values()])
 
