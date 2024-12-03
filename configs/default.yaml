@@ -2,6 +2,8 @@
 
 # Data paths
 model_config_fpath: /env_config/config.yaml
+# If true, use working directory. Otherwise, use path in config.yaml
+reset_base_fpath: True
 cultivar: Chardonnay
 
 # Optimizer configuration

@@ -321,8 +321,16 @@ class BayesianNonDormantOptimizer():
         return -np.sum(true_output != model_output)
     
     def load_config_data(self):
+        """
+        Gets the configuration
+        NOTE: We reset twin config to base file
+        """
         config = yaml.safe_load(open(self.config_file))
         twin_config = config["ModelConfig"]
+
+        if self.config.reset_base_fpath:
+            twin_config["base_fpath"] = os.getcwd()
+            
         data = pd.read_csv(os.path.join(twin_config["base_fpath"], twin_config["digtwin_file"]), index_col=0)
         return data, twin_config["targ_cultivar"]
 
@@ -562,7 +570,7 @@ class BayesianNonDormantOptimizer():
 
         plt.close()
         
-def main():
+def main():NO
     warnings.filterwarnings("ignore",category=UserWarning)
     np.set_printoptions(suppress=True, precision=3)
 
