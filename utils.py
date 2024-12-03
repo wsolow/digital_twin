@@ -14,68 +14,7 @@ import numpy as np
 import pandas as pd
 from dataclasses import dataclass, field
 
-import grape_gym.wrappers.wrappers as wrappers
-from grape_gym.args import NPK_Args
-
 warnings.filterwarnings("ignore", category=UserWarning)
-
-@dataclass
-class Args:
-    """Dataclass for configuration a Gym environment
-    """
-
-    """Parameters for the NPK Gym Environment"""
-    npk_args: NPK_Args
-
-    """Environment ID"""
-    env_id: str = "grape-lnpkw-v0"
-    """Env Reward Function"""
-    env_reward: str = "default"
-
-    """Location of data folder which contains multiple runs"""
-    save_folder: str = "data/"
-
-    """Path"""
-    base_fpath: str = "/Users/wsolow/Projects/digital_twin/"
-    """Relative path to agromanagement configuration file"""
-    agro_fpath: str = "env_config/agro_config/grape_agro.yaml"
-    """Relative path to crop configuration folder"""
-    crop_fpath: str = "env_config/crop_config/"
-    """Relative path to site configuration foloder"""
-    site_fpath: str = "env_config/site_config/"
-    """Relative path to the state units """
-    unit_fpath: str = "env_config/param_units.yaml"
-    """Relative path to the state names"""
-    name_fpath: str = "env_config/param_names.yaml"
-
-    """Policy name if using a policy in the policies.py file"""
-    policy_name: str = None
-
-    """Year range, incremented by 1"""
-    year_range: list = field(default_factory = lambda: [1984, 2000])
-    """Latitude Range, incremented by .5"""
-    lat_range: list = field(default_factory = lambda: [50, 50])
-    """Longitude Range of values, incremented by .5"""
-    long_range: list = field(default_factory = lambda: [5, 5])
-
-    """Agent type, for generating data"""
-    agent_type: str = None
-    """Agent path, for loading .pt agents"""
-    agent_path: str = None
-
-def get_gym_args(args: Args):
-    """
-    Returns the Environment ID and required arguments for the WOFOST Gym
-    Environment
-
-    Arguments:
-        Args: Args dataclass
-    """
-    env_kwargs = {'args': args.npk_args, 'base_fpath': args.base_fpath, \
-                  'agro_fpath': args.agro_fpath,'site_fpath': args.site_fpath, 
-                  'crop_fpath': args.crop_fpath }
-    
-    return args.env_id, env_kwargs
 
 def norm(x):
     """
@@ -100,17 +39,29 @@ def assert_vars(df:pd.DataFrame, vars:list[str]):
     for var in vars:
         assert var in df, f"{var} not in data" 
 
-def wrap_env_reward(env: gym.Env, args):
+def weighted_avg_and_std(arr:list):
     """
-    Function to wrap the environment with a given reward function
-    Based on the reward functions created in the wofost_gym/wrappers/
-    """
+    Return the weighted average and standard deviation by padding arrays
 
-    if args.env_reward == "RewardFertilizationCostWrapper":
-        print('Fertilization Cost Reward Function')
-        return wrappers.RewardFertilizationCostWrapper(env)
-    elif args.env_reward == 'RewardFertilizationThresholdWrapper':
-        print('Fertilization Threshold Reward Function')
-        return wrappers.RewardFertilizationThresholdWrapper(env, max_n=args.max_n, max_p = args.max_p, max_k=args.max_k, max_w=args.max_w)
-    else:
-        return env
+    They weights are in effect first normalized so that they 
+    sum to 1 (and so they must not all be 0).
+
+    values, weights -- NumPy ndarrays with the same shape.
+    """
+    max_len = max(len(row) for row in arr)
+
+    padded_arr = []
+    weights = []
+    for row in arr:
+        if len(row) < max_len:
+            filled_row = np.pad(row, (0, max_len - len(row)), mode='constant', constant_values=0)
+            padded_arr.append(filled_row)
+            weights.append(np.pad(np.ones(len(row)), (0, max_len - len(row)), mode='constant', constant_values=0))
+        else:
+            padded_arr.append(row)
+            weights.append(np.ones(len(row)))
+
+    average = np.average(padded_arr, weights=weights,axis=0)
+    # Fast and numerically precise:
+    variance = np.average((padded_arr-average)**2, weights=weights,axis=0)
+    return (average, np.sqrt(variance))

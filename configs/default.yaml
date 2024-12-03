@@ -1,12 +1,18 @@
 # Configuration file for Phenology Optimizer
 
 # Data paths
-model_config_fpath: "/Users/wsolow/Projects/digital_twin/env_config/config.yaml"
+model_config_fpath: /env_config/config.yaml
 cultivar: Chardonnay
 
 # Optimizer configuration
-init_points: 50
-n_iter: 30
-acq: UCB
+init_points: 5
+n_iter: 5
+acq: EI
+multithread: False
+# Exploration parameter for UCB
+kappa: 2.576
+# Exploration parameter for expected improvement
+xi: 0.01
 loss_func: SUM_SLICE # SUM or SUM_SLICE
+num_runs: 5
 

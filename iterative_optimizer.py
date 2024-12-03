@@ -6,6 +6,7 @@ import argparse
 import numpy as np
 import load_data as ld
 from omegaconf import OmegaConf
+import pickle
 from pheno_optim import BayesianNonDormantOptimizer
 import warnings
 from datetime import datetime
@@ -19,7 +20,7 @@ PHENOLOGY_INT = {"Ecodorm":0, "Budbreak":1, "Flowering":2, "Veraison":3, "Ripe":
 class IterativeOptimizer():
 
     def __init__(self, config):
-        self.config_file = config.model_config_fpath
+        self.config_file = f"{os.getcwd()}/{config.model_config_fpath}"
         self.digtwin = dt.DigitalTwin(config_fpath=self.config_file)
         self.params = self.digtwin.get_param_dict()
 
@@ -54,11 +55,14 @@ class IterativeOptimizer():
             optim.optimize(path=f"{self.fpath}/{i}")
 
             self.params = copy.deepcopy(optim.opt_params)
+            optim.save_model(path=f"{self.fpath}/{i}/model.pkl")
+
             optim.plot()
             for j in range(optim.n_stages):
                 optim.plot_gp(j)
             
             opt_losses[i] = self.compute_loss()
+
 
         self.losses.append(opt_losses)
 
@@ -90,6 +94,7 @@ class IterativeOptimizer():
 
         plt.close()
 
+
         
 def main():
     warnings.filterwarnings("ignore",category=UserWarning)
@@ -102,7 +107,7 @@ def main():
     config = OmegaConf.load(f"configs/{args.config}.yaml")
 
     optim = IterativeOptimizer(config)
-    for _ in range(2):
+    for _ in range(config.num_runs):
         optim.optimize()
     optim.plot_losses()
 

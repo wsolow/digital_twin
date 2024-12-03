@@ -18,12 +18,15 @@ from matplotlib.colors import Normalize
 import yaml
 import load_data as ld
 import sys
-import os
+import os, time
 from datetime import datetime
 import copy
 from matplotlib import cm
 from collections import deque
 import warnings
+import pickle
+import utils
+import threading
 
 PHENOLOGY_INT = {"Ecodorm":0, "Budbreak":1, "Flowering":2, "Veraison":3, "Ripe":4, "Endodorm":5}
 
@@ -35,15 +38,16 @@ class BayesianNonDormantOptimizer():
         
         self.stages = ["Budbreak", "Flowering", "Veraison", "Ripe"]
         self.n_stages = 4
-        self.config_file = config.model_config_fpath
+        self.config_file = f"{os.getcwd()}/{config.model_config_fpath}"
         self.init_points = config.init_points
         self.n_iter = config.n_iter
         self.config = config
+        self.multithread = config.multithread
 
         if config.acq == "UCB":
-            self.acq = acquisition.UpperConfidenceBound()
+            self.acq = acquisition.UpperConfidenceBound(kappa=config.kappa)
         elif config.acq == "EI":
-            self.acq = acquisition.ExpectedImprovement(xi=.01)
+            self.acq = acquisition.ExpectedImprovement(xi=config.xi)
         else:
             raise Exception(f"Unexpected Acquisition Function {config.acq}")
         
@@ -126,6 +130,7 @@ class BayesianNonDormantOptimizer():
         samples = []
         max_val = -np.inf
         while init_points or iteration < self.n_iter:
+            
             try:
                 x_probe = init_points.popleft()
             except IndexError:
@@ -140,7 +145,12 @@ class BayesianNonDormantOptimizer():
             self.all_params.append(self.params)
             
             # Run the model and compute loss
-            target = self.compute_loss(stage)
+            start_time = time.time()
+            if self.multithread:
+                target = self.compute_loss_parallel(stage)
+            else:
+                target = self.compute_loss(stage)
+            print(time.time()-start_time)
             optimizer.register(target=target, params=x_probe)
             samples.append([target, *x_probe.values()])
 
@@ -152,11 +162,53 @@ class BayesianNonDormantOptimizer():
             
         return samples
 
+    def compute_loss_parallel(self, stage):
+        """
+        Compute the loss of the phenology model in parallel
+        """
+        def parallel_loss(self, i):
+            """
+            Function for computing the loss of a single year of data
+            """
+            if stage == "Endodorm" or stage == "Ecodorm":
+                return
+            else:
+                # For all stages, check if the previous stage is there
+                if PHENOLOGY_INT[stage]-1 not in self.stage_list[i]:
+                    return
+                
+                # If not ripe, check the current stage is there
+                if stage != "Ripe":
+                    if PHENOLOGY_INT[stage] not in self.stage_list[i]:
+                        return
+                
+                # For bud break and flowering, check that the next stage is there
+                if stage == "Budbreak" or stage == "Flowering":
+                    if PHENOLOGY_INT["Endodorm"] in self.stage_list[i] and \
+                        PHENOLOGY_INT[stage]+1 not in self.stage_list[i]:
+                        return
+                    
+            digtwin = dt.DigitalTwin(config_fpath=self.config_file)
+            true_output, model_output = digtwin.run_from_data(self.data_list[i], args=self.params, run_till=True)
+            
+            self.loss += self.loss_func(true_output, model_output, stage, self.stage_list[i])
+
+        self.loss = 0
+        threads = [threading.Thread(target=parallel_loss, args=(self,k,)) for k in range(len(self.data_list))]
+
+        [t.start() for t in threads]
+        [t.join() for t in threads]
+
+        return self.loss
+
+        
+
     def compute_loss(self, stage):
         """
         Compute the loss of the phenology model
         """
-        loss = 0 
+        loss = 0
+
         for i in range(len(self.data_list)):
             if stage == "Endodorm" or stage == "Ecodorm":
                 pass
@@ -175,11 +227,11 @@ class BayesianNonDormantOptimizer():
                     if PHENOLOGY_INT["Endodorm"] in self.stage_list[i] and \
                         PHENOLOGY_INT[stage]+1 not in self.stage_list[i]:
                         continue
-                
+  
             true_output, model_output = self.digtwin.run_from_data(self.data_list[i], args=self.params, run_till=True)
-
+            
             loss += self.loss_func(true_output, model_output, stage, self.stage_list[i])
-
+    
         return loss
 
     def update_params(self, params):
@@ -274,11 +326,16 @@ class BayesianNonDormantOptimizer():
         data = pd.read_csv(os.path.join(twin_config["base_fpath"], twin_config["digtwin_file"]), index_col=0)
         return data, twin_config["targ_cultivar"]
 
-    def save_model(self, path:str):
+    def save_model_twin(self, path:str):
         """
         Save the current model of the digital twin
         """
         self.digtwin.save_model(path)
+
+    def save_model(self, path:str):
+        with open(path, "wb") as fp:
+            pickle.dump(self.opt_params, fp)
+        fp.close()
 
     def plot_gp(self, ind:int, path:str=None):
         """
@@ -333,14 +390,25 @@ class BayesianNonDormantOptimizer():
         plt.close()
 
     def plot(self, path:str=None):
-
+        """
+        Plot the phenology graph for each year and the average
+        
+        """
         os.makedirs(f"{self.fpath}/Phenology",exist_ok=True)
+        true = []
+        model = []
+
         for data in self.data_list:
+            # Run model
             true_output, model_output = self.digtwin.run_from_data(data, args=self.opt_params)
-            x=np.arange(len(true_output))
+            true.append(true_output)
+            model.append(model_output)
+
+            x = np.arange(len(true_output))
             plt.figure()
             plt.plot(x, true_output["PHENOLOGY"],label='True Data')
             plt.plot(x, model_output["PHENOLOGY"], label='Calibrated Model')
+
             start = true_output["DATE"].iloc[0]
             end = true_output["DATE"].iloc[-1]
             plt.title(f"{self.cultivar} Phenology from {start} to {end}")
@@ -352,7 +420,61 @@ class BayesianNonDormantOptimizer():
                 plt.savefig(f"{self.fpath}/Phenology/{self.cultivar}_PHENOLOGY_{start}.png")
             else:
                 plt.savefig(path)
+
+        self.plot_avg(true, model, path=path)
+        self.plot_avg_bar(true,model,path=path)
         plt.close()
+
+    def plot_avg(self, true, model, path:str=None):
+        """
+        Plot the average phenology 
+        """
+        true = [true[i]["PHENOLOGY"] for i in range(len(true))]
+        model = [model[i]["PHENOLOGY"] for i in range(len(model))]
+        # Plot average phenology
+        true_avg, true_std = utils.weighted_avg_and_std(true)
+        model_avg, model_std = utils.weighted_avg_and_std(model)
+        x = np.arange(len(true_avg))
+
+        plt.figure()
+        plt.plot(x, true_avg, label='True Average')
+        plt.plot(x, model_avg, label="Calibrated Model Average")
+        plt.fill_between(x, true_avg-true_std, true_avg+true_std, alpha=.5 )
+        plt.fill_between(x, model_avg-model_std,model_avg+model_std, alpha=.5)
+        plt.title(f"{self.cultivar} Average Phenology")
+        plt.ylabel('Phenology Stage')
+        plt.yticks(ticks=[0,1,2,3,4,5], labels=['Ecodorm', 'Bud Break', 'Flower', 'veraison', 'Ripe', 'Endodorm'], rotation=45)
+        plt.xlabel(f'Days since Jan 1st')
+        plt.legend()
+
+        if path is None:
+            plt.savefig(f"{self.fpath}/Phenology/{self.cultivar}_Average_PHENOLOGY.png")
+        else:
+            plt.savefig(path)
+
+    def plot_avg_bar(self, true, model, path:str=None):
+        avgs = np.zeros((self.n_stages, len(true)))
+        for s in range(self.n_stages):
+            for i in range(len(true)):
+                avgs[s,i] = -BayesianNonDormantOptimizer.compute_SUM_SLICE(true[i], model[i], self.stages[s], [])
+
+        avg = np.mean(avgs,axis=1)
+        std = np.std(avgs,axis=1)
+
+        x = np.arange(self.n_stages)
+        plt.figure()
+        plt.bar(x, avg)
+        plt.errorbar(x, avg, std, color="k", fmt='none', capsize=10)
+
+        plt.title(f"{self.cultivar} Model Error")
+        plt.xlabel("Stage")
+        plt.xticks(ticks=x, labels=self.stages, rotation=0)
+        plt.ylabel("Average Error in Days")
+        if path is None:
+            plt.savefig(f"{self.fpath}/Phenology/{self.cultivar}_ErrorAVG_PHENOLOGY.png")
+        else:
+            plt.savefig(path)
+
 
     def animate_gp(self, ind:int, path:str=None):
         gran = 50

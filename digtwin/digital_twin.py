@@ -70,7 +70,7 @@ class DigitalTwin():
         return pd.DataFrame(true_output_arr, columns=["DATE"]+self.output_vars+self.weather_vars),\
               pd.DataFrame(model_output_arr, columns=["DATE"]+self.output_vars+self.weather_vars)
 
-    def run_from_data(self, data, args:dict=None, run_till=False):
+    def run_from_data(self, data, args:dict=None, run_till=True):
         """
         Run the digital twin given a data file
         """

@@ -7,8 +7,9 @@ import numpy as np
 import argparse
 import sys
 import math
+from pathlib import Path
 
-DATASET_DIRECTORY = "/Users/wsolow/Projects/grape_datasets/"
+DATASET_DIRECTORY = f"{Path(os.getcwd()).parent.absolute()}/grape_datasets/"
 
 GRAPE_CULTIVARS = ['Aligote', 'Alvarinho', 'Auxerrois', 'Barbera', 'Cabernet Franc', 
                    'Cabernet Sauvignon', 'Chardonnay', 'Chenin Blanc', 'Concord', 
@@ -30,7 +31,6 @@ MJ_TO_J = 1000000
 
 LAT = 40
 LON = -120
-
 
 def load_and_process_data_dormant(cultivar: str):
     """
@@ -85,7 +85,6 @@ def load_and_process_data_dormant(cultivar: str):
     df.drop(columns=["AVG_AT", "MIN_RH", "AVG_RH", "MAX_RH", "MIN_DEWPT", "AVG_DEWPT", 
                      "MAX_DEWPT", "WS_MPH", "MAX_WS_MPH", "WD_DEGREE"], inplace=True)
 
-    df.to_csv('/Users/wsolow/Projects/digital_twin/data/aligote.csv')
     df_list = []
     stages_list = []
 
@@ -226,7 +225,6 @@ def load_and_process_data_nondormant(cultivar: str):
     df.drop(columns=["AVG_AT", "MIN_RH", "AVG_RH", "MAX_RH", "MIN_DEWPT", "AVG_DEWPT", 
                      "MAX_DEWPT", "WS_MPH", "MAX_WS_MPH", "WD_DEGREE"], inplace=True)
 
-    df.to_csv(f'/Users/wsolow/Projects/digital_twin/data/{cultivar}.csv')
     df_list = []
     stages_list = []
 
@@ -297,9 +295,8 @@ def load_and_process_data_nondormant(cultivar: str):
             and PHENOLOGY_INT["Veraison 50%"] not in pheno_states:
             continue
 
-                # If there are any nan values in the weather throw out the entire year
+        # If there are any nan values in the weather throw out the entire year
         if year_df.isnull().any().any():
-            print('Throwing out year with missing ewather :(')
             continue
 
         year_stages = []
