@@ -286,8 +286,7 @@ def load_and_process_data_nondormant(cultivar: str):
 
         pheno_states = np.unique(year_df["PHENOLOGY"])
 
-        # If there are any nan values in the weather throw out the entire year
-        if year_df.isnull().any().any():
+        if PHENOLOGY_INT["Budburst/Budbreak"] not in pheno_states:
             continue
 
         if PHENOLOGY_INT["Budburst/Budbreak"] in pheno_states and PHENOLOGY_INT["Endodorm"] in pheno_states \
@@ -295,10 +294,14 @@ def load_and_process_data_nondormant(cultivar: str):
             continue
 
         if PHENOLOGY_INT["Full Bloom"] in pheno_states and PHENOLOGY_INT["Endodorm"] in pheno_states \
-            and PHENOLOGY_INT["Veraison 50%"] in pheno_states:
+            and PHENOLOGY_INT["Veraison 50%"] not in pheno_states:
             continue
 
-        
+                # If there are any nan values in the weather throw out the entire year
+        if year_df.isnull().any().any():
+            print('Throwing out year with missing ewather :(')
+            continue
+
         year_stages = []
         if PHENOLOGY_INT["Ecodorm"] in pheno_states:
             year_stages.append(PHENOLOGY_INT["Ecodorm"])
@@ -321,8 +324,7 @@ def load_and_process_data_nondormant(cultivar: str):
         yr_df.drop(columns=["DORMANT_SEASON", "YEAR_JDAY"],inplace=True)
         yr_df = yr_df[COL_ORDERING]
     
-    return df_list, stages_list
-
+    return np.array(df_list,dtype=object), np.array(stages_list,dtype=object)
 
 def main():
     parser = argparse.ArgumentParser()
@@ -330,7 +332,7 @@ def main():
 
     args = parser.parse_args()
 
-    load_and_process_data_dormant(args.cultivar)
+    load_and_process_data_nondormant(args.cultivar)
 if __name__ == "__main__":
 
     main()

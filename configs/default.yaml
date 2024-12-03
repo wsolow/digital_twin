@@ -2,10 +2,11 @@
 
 # Data paths
 model_config_fpath: "/Users/wsolow/Projects/digital_twin/env_config/config.yaml"
-cultivar: "Aligote"
+cultivar: Chardonnay
 
 # Optimizer configuration
-init_points: 30
-n_iter: 20
-acq: EI
+init_points: 50
+n_iter: 30
+acq: UCB
+loss_func: SUM_SLICE # SUM or SUM_SLICE
 

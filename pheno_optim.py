@@ -31,7 +31,7 @@ class BayesianNonDormantOptimizer():
     """
     Optimize each grape phenology stage iteratively 
     """
-    def __init__(self, config):
+    def __init__(self, config, data_list:list=None, stage_list:list=None):
         
         self.stages = ["Budbreak", "Flowering", "Veraison", "Ripe"]
         self.n_stages = 4
@@ -47,36 +47,51 @@ class BayesianNonDormantOptimizer():
         else:
             raise Exception(f"Unexpected Acquisition Function {config.acq}")
         
-        data, cult = self.load_config_data()
-
+        if config.loss_func == "SUM":
+            self.loss_func = BayesianNonDormantOptimizer.compute_SUM
+        elif config.loss_func == "SUM_SLICE":
+            self.loss_func = BayesianNonDormantOptimizer.compute_SUM_SLICE
+        else: 
+            raise Exception(f"Unexpected Loss Function {config.loss_func}")
+        
         self.cultivar = config.cultivar
-        if self.cultivar is not None:
-            self.data_list, self.stage_list = ld.load_and_process_data_nondormant(config.cultivar)
+        if data_list is None:
+            if self.cultivar is not None:
+                self.data_list, self.stage_list = ld.load_and_process_data_nondormant(config.cultivar)
+            else:
+                data, cult = self.load_config_data()
+                self.data_list = [data]
+                self.stage_list = list(PHENOLOGY_INT.values())
         else:
-            self.data_list = [data]
-            self.stage_list = list(PHENOLOGY_INT.values())
+            if stage_list is None:
+                raise Exception("Expected list `stage_list` to not be None")
+            self.data_list = data_list
+            self.stage_list = stage_list
 
         self.digtwin = dt.DigitalTwin(config_fpath=self.config_file)
-        
         self.params = self.digtwin.get_param_dict()
         self.all_params = []
         self.opt_params = copy.deepcopy(self.params)
 
         self.pbounds = [{"TBASEM": (0,15),"TSUMEM":(10, 500)}, # Bud break
-                        {"TEFFMX":(20,45), "TSUM1":(100, 1000)}, # Flowering
-                        {"TEFFMX":(20,45), "TSUM2":(100,1000)}, # Veraison 
-                        {"TEFFMX":(20,45), "TSUM3":(100,1000)}] # Ripe
+                        {"TEFFMX":(15,45), "TSUM1":(100, 1000)}, # Flowering
+                        {"TEFFMX":(15,45), "TSUM2":(100, 1000)}, # Veraison 
+                        {"TEFFMX":(15,45), "TSUM3":(100, 1000)}] # Ripe
         
         self.samples = [[] for _ in range(self.n_stages)]
         self.optimizers = [None]*self.n_stages
         self.gps = [[] for _ in range(self.n_stages)]
    
-    def optimize(self):
+   
+    def optimize(self, path:str=None):
         """
         Iteratively optimize the crop model by stage
         """
         self.stage_params = []
-        self.fpath = f"logs/{self.cultivar}_{datetime.now().strftime('%Y-%m-%d_%H:%M:%S')}"
+        if path is None:
+            self.fpath = f"logs/single/{self.cultivar}_{datetime.now().strftime('%Y-%m-%d_%H:%M:%S')}"
+        else:
+            self.fpath = path
         os.makedirs(self.fpath, exist_ok=True)
         with open(f"{self.fpath}/config.yaml", "w") as fp:
             OmegaConf.save(config=self.config, f=fp.name)
@@ -161,8 +176,9 @@ class BayesianNonDormantOptimizer():
                         PHENOLOGY_INT[stage]+1 not in self.stage_list[i]:
                         continue
                 
-            true_output, model_output = self.digtwin.run_from_data(self.data_list[i], args=self.params)
-            loss += self.compute_SUM_SLICE(true_output, model_output, stage, self.stage_list[i])
+            true_output, model_output = self.digtwin.run_from_data(self.data_list[i], args=self.params, run_till=True)
+
+            loss += self.loss_func(true_output, model_output, stage, self.stage_list[i])
 
         return loss
 
@@ -191,8 +207,9 @@ class BayesianNonDormantOptimizer():
             self.params["Q10C"] = params["Q10C"]
         if "CSUMDB" in params.keys():
             self.params["CSUMDB"] = params["CSUMDB"]
-        
-    def compute_SUM_SLICE(self, true, model, stage, val_stages):
+    
+    @staticmethod
+    def compute_SUM_SLICE(true, model, stage, val_stages):
         """
         Compute the error in days between the true data and current model
         only for the current and previous stage
@@ -218,6 +235,39 @@ class BayesianNonDormantOptimizer():
 
         return -np.sum(true_output != model_output)
     
+    @staticmethod
+    def compute_SUM_MODIFIED(true, model ,stage, val_stages):
+
+        curr_stage = (PHENOLOGY_INT[stage]) % len(PHENOLOGY_INT)
+        prev_stage = (PHENOLOGY_INT[stage]-1) % len(PHENOLOGY_INT)
+
+        model_output = model["PHENOLOGY"].to_numpy()
+        true_output = true["PHENOLOGY"].to_numpy()
+
+        true_stage_args = np.argwhere(true_output == curr_stage).flatten()
+        model_stage_args = np.argwhere(model_output == curr_stage).flatten()
+        true_prev_args = np.argwhere(true_output == prev_stage).flatten()
+        model_prev_args = np.argwhere(model_output == prev_stage).flatten()
+
+        args = np.unique(np.concatenate((true_stage_args, model_stage_args, true_prev_args, model_prev_args)))
+        
+        if len(args) == 0:
+            return 0
+        true_output = true_output[args]
+        model_output = model_output[args]
+
+        return -np.sum(true_output != model_output)
+
+    @staticmethod
+    def compute_SUM(true, model, stage, val_stages):
+        """
+        Compute loss as the accumulated difference across all models
+        """
+        model_output = model["PHENOLOGY"].to_numpy()
+        true_output = true["PHENOLOGY"].to_numpy()
+
+        return -np.sum(true_output != model_output)
+    
     def load_config_data(self):
         config = yaml.safe_load(open(self.config_file))
         twin_config = config["ModelConfig"]
@@ -230,7 +280,7 @@ class BayesianNonDormantOptimizer():
         """
         self.digtwin.save_model(path)
 
-    def plot_gp(self, ind):
+    def plot_gp(self, ind:int, path:str=None):
         """
         Plot the Gaussian Process Mean of all parameters
         """
@@ -276,9 +326,14 @@ class BayesianNonDormantOptimizer():
         fig.colorbar(im2, ax=ax[1,1])
         ax[1,1].set_title("Acquisition Function")
 
-        plt.savefig(f"{self.fpath}/GP/{self.cultivar}_{self.stages[ind]}_Final_GP.png")
+        if path is None:
+            plt.savefig(f"{self.fpath}/GP/{self.cultivar}_{self.stages[ind]}_Final_GP.png")
+        else:
+            plt.savefig(path)
+        plt.close()
 
-    def plot(self):
+    def plot(self, path:str=None):
+
         os.makedirs(f"{self.fpath}/Phenology",exist_ok=True)
         for data in self.data_list:
             true_output, model_output = self.digtwin.run_from_data(data, args=self.opt_params)
@@ -293,9 +348,13 @@ class BayesianNonDormantOptimizer():
             plt.yticks(ticks=[0,1,2,3,4,5], labels=['Ecodorm', 'Bud Break', 'Flower', 'veraison', 'Ripe', 'Endodorm'], rotation=45)
             plt.xlabel(f'Days since {start}')
             plt.legend()
-            plt.savefig(f"{self.fpath}/Phenology/{self.cultivar}_PHENOLOGY_{start}.png")
+            if path is None:
+                plt.savefig(f"{self.fpath}/Phenology/{self.cultivar}_PHENOLOGY_{start}.png")
+            else:
+                plt.savefig(path)
+        plt.close()
 
-    def animate_gp(self, ind):
+    def animate_gp(self, ind:int, path:str=None):
         gran = 50
         levs = 100
         cmap = cm.jet
@@ -371,12 +430,16 @@ class BayesianNonDormantOptimizer():
             ax[1,1].axvline(self.samples[ind][i,1], c='k')
             ax[1,1].axhline(self.samples[ind][i,2], c='k')
 
-        frames = np.linspace(0, 10, 100)
         ani = animation.FuncAnimation(fig, update, frames=len(self.gps[ind]), interval=500)
         writer = animation.FFMpegWriter(
            fps=2, metadata=dict(artist='Me'), bitrate=1800)
-        ani.save(f"{self.fpath}/GP/{self.cultivar}_{self.stages[ind]}_GP_Animiation.mp4", writer=writer)
-     
+        if path is None:
+            ani.save(f"{self.fpath}/GP/{self.cultivar}_{self.stages[ind]}_GP_Animiation.mp4", writer=writer)
+        else:
+           ani.save(path, writer=writer)
+
+        plt.close()
+        
 def main():
     warnings.filterwarnings("ignore",category=UserWarning)
     np.set_printoptions(suppress=True, precision=3)

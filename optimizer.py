@@ -665,6 +665,20 @@ def main():
     optim.save_model(f'models/{args.cultivar}.pkl')
     sys.exit(0)'''
     for cultivar in ld.GRAPE_CULTIVARS:
+        data_list, stage_list = ld.load_and_process_data_nondormant(cultivar)
+        for s in stage_list:
+            s = np.sort(s)
+            for i in s:
+                if i == 5:
+                    continue
+                if i+1 not in s:
+                    print(s)
+                if i == 0:
+                    continue
+                if i-1 not in s:
+                    print(s)
+    sys.exit(0)
+    for cultivar in ld.GRAPE_CULTIVARS:
         print(f'{cultivar}')
         if cultivar != "Aligote":
             continue
