@@ -3,4 +3,5 @@
 **/__pycache__/
 **.pcse
 logs/
-Data/
+data/
+env_config/
