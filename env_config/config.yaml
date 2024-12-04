@@ -1,0 +1,18 @@
+ModelConfig:
+    base_fpath: /Users/wsolow/Projects/digital_twin/
+    digtwin_file: data/test.csv
+    crop_config: env_config/
+    targ_cultivar: Aligote
+    model_fpath: models/
+
+CropConfig:
+    crop_name: grape
+    variety_name: grape_1
+    CROP_START_TYPE: endodorm
+    latitude: 46
+    longitude: -120
+    start_date: 2017-01-01
+    end_date: 2018-01-01
+    output_vars: [DTSUME, DTSUM, DVR, DCU, DVS, TSUME, TSUM, CSUM, PHENOLOGY] 
+    weather_vars: [TMIN, TMAX, TEMP, RAIN, IRRAD, LAT, LON]
+        

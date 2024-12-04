@@ -1,0 +1,233 @@
+# Created by Allard de Wit
+# Formatting Modified by Will Solow
+Version: 1.0.0
+Metadata:
+  Creator: Will Solow
+  Contributor: Markus Keller
+  Contact: soloww@oregonstate.edu
+  Publisher: Oregon State University
+  Title: Parameter sets for the WOFOST7.2/WOFOST8.0 model for simulating grape
+  Date: 2024-10-22
+  Language: EN
+  Format: YAML
+  Subject: WOFOST parameters for grapes
+  Description: This file provides parameters for grape varieties calibrated
+    on local experimental data in Washington
+  Identifier:
+  Relation:
+  Source:
+  Type: Report
+  Coverage:
+    Region: Washington, United States, global
+  Rights: European Union Public License (EUPL)
+  Keyword: grape
+CropParameters:
+  GenericC3: &GenericC3
+    #
+    # Atmospheric CO2
+    #
+    CO2EFFTB:
+      - [40., 0.00, 360., 1.00, 720., 1.11, 1000., 1.11, 2000., 1.11]
+      - multiplication factor for EFF to account for an increasing CO2 concentration
+      - ['PPM', '-']
+    CO2TRATB:
+      - [40., 0.00, 360., 1.00, 720., 0.9, 1000., 0.9, 2000., 0.9]
+      - multiplication factor for maximum transpiration rate TRAMX to account for
+        an increasing CO2 concentration
+      - ['PPM', '-']
+    CO2AMAXTB:
+      - [40., 0.00, 360., 1.00, 720., 1.60, 1000., 1.90, 2000., 1.90]
+      - multiplication factor for AMAX to account for an increasing CO2 concentration
+      - ['PPM', '-']
+  GenericC4: &GenericC4
+    #
+    # Atmospheric CO2
+    #
+    CO2EFFTB:
+      - [40., 0.00, 360., 1.00, 720., 1.00, 1000., 1.00, 2000., 1.00]
+      - multiplication factor for EFF to account for an increasing CO2 concentration
+      - ['PPM', '-']
+    CO2TRATB:
+      - [40., 0.00, 360., 1.00, 720., 0.74, 1000., 0.74, 2000., 0.74]
+      - multiplication factor for maximum transpiration rate TRAMX to account for
+        an increasing CO2 concentration
+      - ['PPM', '-']
+    CO2AMAXTB:
+      - [40., 0.00, 360., 1.00, 720., 1.00, 1000., 1.00, 2000., 1.00]
+      - multiplication factor for AMAX to account for an increasing CO2 concentration
+      - ['PPM', '-']
+  EcoTypes:
+    grape: &grape
+      <<: *GenericC3
+    
+      #
+      # EMERGENCE
+      #
+      TBASEM:
+        - 8.19
+        - Lower threshold temperature for budbreak
+        - ['C']
+      TEFFMX:
+        - 25.0
+        - maximum effective temperature for budbreak
+        - ['C']
+      TSUMEM:
+        - 107
+        - temperature sum from endodorm to budbreak
+        - ['C.d']
+      #
+      # PHENOLOGICAL DEVELOPMENT
+      #
+      TSUM1:
+        - 223
+        - temperature sum from budbreak to flowering
+        - ['C.d']
+      TSUM2:
+        - 659
+        - temperature sum from flowering to veraison
+        - ['C.d']
+      TSUM3:
+        - 581
+        - temperature sum from veraison to ripe
+        - ['C.d']
+      TSUM4:
+        - 1000
+        - temperature sum from ripe onwards
+        - ['C.d']
+      DVSI:
+        - 0.0
+        - Initial development stage
+        - ['-']
+      DVSM:
+        - 2.0
+        - Development stage of maturity
+        - ['-']
+      DVSEND:
+        - 3.0
+        - development stage at harvest (= 2.0 at maturity)
+        - ['-']
+      #
+      # PERENNIAL DEVELOPMENT
+      #
+      MLDORM:
+        - 12.7
+        - Number of daylight hours below which dormancy is induced
+        - ['hr']
+      Q10C:
+        - 2.17
+        - Regression factor for chilling units
+        - ['-']
+      CSUMDB:
+        - 119
+        - Chilling units required for endodormancy break
+        - ['C.d']
+
+      #
+      # COLD HARDINESS
+      # 
+      HCINIT:  
+        - -11.8
+        - Initial cold hardiness value
+        - ['C']
+      HCMIN:   
+        - -1.2
+        - Minimum cold hardiness
+        - ['C']     
+      HCMAX:  
+        - -25.7
+        - Maximum cold hardiness
+        - ['C']   
+      TENDO:
+        - 14.0
+        - Threshold for degree-days during endodormancy
+        - ['C']  
+      TECO:
+        - 3.0
+        - Threshold for degree-days during ecodormancy
+        - ['C']       
+      ECOBOUND: 
+        - -600
+        - Temperature threshold for ecodormancy transition
+        - ['C']  
+      ENACCLIM: 
+        - 0.10
+        - Acclimation rate during endodormancy
+        - ['C.d']   
+      ECACCLIM:
+        - 0.02
+        - Acclimation rate during ecodormancy
+        -  ['C.d']   
+      ENDEACCLIM:
+        - 0.10
+        - Deacclimation rate during endodormancy
+        - ['C.d']
+      ECDEACCLIM:
+        - 0.08
+        - Deacclimation rate during ecodormancy
+        - ['C.d']  
+      THETA:   
+        - 7
+        - Parameter for the cold hardiness model
+        - ['-'] 
+     
+  Varieties:
+    grape_1:
+      <<: *grape
+      #
+      # PHENOLOGICAL DEVELOPMENT
+      #
+      Q10C:
+        - 2.17
+        - Regression factor for chilling units
+        - ['-']
+
+    grape_2: 
+      <<: *grape
+      #
+      # PHENOLOGICAL DEVELOPMENT
+      #
+      Q10C:
+        - 3.29
+        - Regression factor for chilling units
+        - ['-']
+
+    grape_3:
+      <<: *grape
+      #
+      # PHENOLOGICAL DEVELOPMENT
+      #
+      MLDORM:
+        - 12.30
+        - Number of daylight hours below which dormancy is induced
+        - ['hr']
+
+    grape_4: 
+      <<: *grape
+      CSUMDB:
+        - 180
+        - Chilling units required for endodormancy break
+        - ['C.d']
+
+    grape_5:
+      <<: *grape
+
+      Q10C:
+        - 2.17
+        - Regression factor for chilling units
+        - ['-']
+      MLDORM:
+        - 12.30
+        - Number of daylight hours below which dormancy is induced
+        - ['hr']
+      CSUMDB:
+        - 180
+        - Chilling units required for endodormancy break
+        - ['C.d']
+      TSUM2:
+        - 761
+        - temperature sum from flowering to veraison
+        - ['C.d']
+      TBASEM:
+        - 9.89
+        - Lower threshold temperature for budbreak
+        - ['C']
