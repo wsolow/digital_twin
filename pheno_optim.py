@@ -8,7 +8,7 @@ from omegaconf import OmegaConf
 from bayes_opt import acquisition
 from bayes_opt import BayesianOptimization
 from sklearn.gaussian_process import GaussianProcessRegressor
-from sklearn.gaussian_process.kernels import Matern
+from sklearn.gaussian_process.kernels import Matern, RBF
 from digtwin import digital_twin as dt
 import numpy as np
 import pandas as pd
@@ -39,11 +39,13 @@ class BayesianNonDormantOptimizer():
         self.stages = ["Budbreak", "Flowering", "Veraison", "Ripe"]
         self.n_stages = 4
         self.config_file = f"{os.getcwd()}/{config.model_config_fpath}"
+        self.config = config
+
+        # Bayesian Optimization Parameters
         self.init_points = config.init_points
         self.n_iter = config.n_iter
-        self.config = config
         self.multithread = config.multithread
-
+        self.alpha = config.alpha
         if config.acq == "UCB":
             self.acq = acquisition.UpperConfidenceBound(kappa=config.kappa)
         elif config.acq == "EI":
@@ -57,6 +59,12 @@ class BayesianNonDormantOptimizer():
             self.loss_func = BayesianNonDormantOptimizer.compute_SUM_SLICE
         else: 
             raise Exception(f"Unexpected Loss Function {config.loss_func}")
+        
+        # GP Parameters
+        if config.kernel == "Matern":
+            self.kernel = Matern(nu = config.nu)
+        else:
+            self.kernel = RBF()
         
         self.cultivar = config.cultivar
         if data_list is None:
@@ -106,10 +114,10 @@ class BayesianNonDormantOptimizer():
                                              acquisition_function=self.acq, allow_duplicate_points=True)
             
             optimizer._gp = GaussianProcessRegressor(
-            kernel=Matern(nu=2.5),
-            alpha=1e-10,
+            kernel=self.kernel,
+            alpha=self.alpha,
             normalize_y=False,
-            n_restarts_optimizer=5,
+            n_restarts_optimizer=10,
             random_state=0,
             )
 

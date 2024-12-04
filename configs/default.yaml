@@ -4,12 +4,13 @@
 model_config_fpath: /env_config/config.yaml
 # If true, use working directory. Otherwise, use path in config.yaml
 reset_base_fpath: True
-cultivar: Chardonnay
+cultivar: Aligote
 
 # Optimizer configuration
-init_points: 5
-n_iter: 5
-acq: EI
+init_points: 50
+n_iter: 20
+alpha: 1e-10
+acq: UCB
 multithread: False
 # Exploration parameter for UCB
 kappa: 2.576
@@ -17,4 +18,9 @@ kappa: 2.576
 xi: 0.01
 loss_func: SUM_SLICE # SUM or SUM_SLICE
 num_runs: 5
+
+# Kernel parameters
+kernel: RBF  # Matern, RBF
+nu: 2.5
+
 
