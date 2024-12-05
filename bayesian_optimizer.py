@@ -109,7 +109,6 @@ class BayesianNonDormantOptimizer():
             OmegaConf.save(config=self.config, f=fp.name)
 
         for i in range(self.n_stages):
-            st = time.time()
             self.params = copy.deepcopy(self.opt_params)
             optimizer = BayesianOptimization(f=None, pbounds=self.pbounds[i], \
                                              bounds_transformer=self.bounds_transformer,
@@ -127,7 +126,6 @@ class BayesianNonDormantOptimizer():
                                          list(self.pbounds[i].keys()), self.stages[i], i)
             self.samples[i] = np.array(samples)
             self.optimizers[i] = optimizer
-            print(time.time()-st)
 
     def maximize(self, optimizer, vars:list, stage:str, ind:int):
         """
@@ -610,17 +608,13 @@ def main():
     config = OmegaConf.load(f"configs/{args.config}.yaml")
 
     optim = BayesianNonDormantOptimizer(config)
-    st = time.time()
     optim.optimize()
-    print(f"Optimize time: {time.time()-st}")
 
-    st = time.time()
     for i in range(optim.n_stages):
         optim.plot_gp(i)
         #optim.animate_gp(i)
     
     optim.plot()
-    print(f"Plot Time: {time.time()-st}")
 
     
 if __name__ == "__main__":
