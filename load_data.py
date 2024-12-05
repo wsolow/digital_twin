@@ -141,7 +141,6 @@ def load_and_process_data_dormant(cultivar: str):
         year_df["PHENOLOGY"] = year_df["PHENOLOGY"].ffill().astype('int64')
 
         pheno_states = np.unique(year_df["PHENOLOGY"])
-        print(pheno_states)
 
         # If there are any nan values in the weather throw out the entire year
         if year_df.isnull().any().any():

@@ -2,31 +2,27 @@
 Class for optimizing the phenology
 """
 
-import argparse
-import bayes_opt
-from omegaconf import OmegaConf
 from bayes_opt import acquisition
-from bayes_opt import BayesianOptimization
+from bayes_opt import BayesianOptimization, SequentialDomainReductionTransformer
+from digtwin import digital_twin as dt
+import load_data as ld
+import utils
+
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import Matern, RBF
-from digtwin import digital_twin as dt
+
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import matplotlib.patches as patches
 import matplotlib.animation as animation
 from matplotlib.colors import Normalize
-import yaml
-import load_data as ld
-import sys
-import os, time
-from datetime import datetime
-import copy
 from matplotlib import cm
+
+import yaml, os, copy, warnings, pickle, threading, argparse
+from datetime import datetime
+from omegaconf import OmegaConf
 from collections import deque
-import warnings
-import pickle
-import utils
-import threading
 
 PHENOLOGY_INT = {"Ecodorm":0, "Budbreak":1, "Flowering":2, "Veraison":3, "Ripe":4, "Endodorm":5}
 
@@ -60,12 +56,16 @@ class BayesianNonDormantOptimizer():
         else: 
             raise Exception(f"Unexpected Loss Function {config.loss_func}")
         
+        self.bounds_transformer = SequentialDomainReductionTransformer(eta=.99, \
+                                        minimum_window=[3, 50])
+        
         # GP Parameters
         if config.kernel == "Matern":
             self.kernel = Matern(nu = config.nu)
         else:
             self.kernel = RBF()
         
+
         self.cultivar = config.cultivar
         if data_list is None:
             if self.cultivar is not None:
@@ -93,7 +93,7 @@ class BayesianNonDormantOptimizer():
         self.samples = [[] for _ in range(self.n_stages)]
         self.optimizers = [None]*self.n_stages
         self.gps = [[] for _ in range(self.n_stages)]
-   
+        self.bounds = [[] for _ in range(self.n_stages)]
    
     def optimize(self, path:str=None):
         """
@@ -101,7 +101,7 @@ class BayesianNonDormantOptimizer():
         """
         self.stage_params = []
         if path is None:
-            self.fpath = f"logs/single/{self.cultivar}_{datetime.now().strftime('%Y-%m-%d_%H:%M:%S')}"
+            self.fpath = f"logs/single/{self.cultivar}/{self.cultivar}_{datetime.now().strftime('%Y-%m-%d_%H:%M:%S')}"
         else:
             self.fpath = path
         os.makedirs(self.fpath, exist_ok=True)
@@ -111,6 +111,7 @@ class BayesianNonDormantOptimizer():
         for i in range(self.n_stages):
             self.params = copy.deepcopy(self.opt_params)
             optimizer = BayesianOptimization(f=None, pbounds=self.pbounds[i], \
+                                             bounds_transformer=self.bounds_transformer,
                                              acquisition_function=self.acq, allow_duplicate_points=True)
             
             optimizer._gp = GaussianProcessRegressor(
@@ -158,14 +159,19 @@ class BayesianNonDormantOptimizer():
             else:
                 target = self.compute_loss(stage)
             optimizer.register(target=target, params=x_probe)
-            samples.append([target, *x_probe.values()])
+
+            if optimizer._bounds_transformer and iteration > 0:
+                # The bounds transformer should only modify the bounds after
+                # the init_points points (only for the true iterations)
+                optimizer.set_bounds(optimizer._bounds_transformer.transform(optimizer._space))
 
             if target > max_val:
                 self.opt_params = copy.deepcopy(self.params)
                 max_val = target
-            
+
+            samples.append([target, *x_probe.values()])
             self.gps[ind].append(copy.deepcopy(optimizer._gp))
-            
+            self.bounds[ind].append(copy.deepcopy(optimizer._space._bounds))
         return samples
 
     def compute_loss_parallel(self, stage):
@@ -206,8 +212,6 @@ class BayesianNonDormantOptimizer():
         [t.join() for t in threads]
 
         return self.loss
-
-        
 
     def compute_loss(self, stage):
         """
@@ -360,7 +364,7 @@ class BayesianNonDormantOptimizer():
         gran = 50
         levs = 100
         
-        fig, ax = plt.subplots(2,2)
+        fig, ax = plt.subplots(2,2, figsize=(10,8))
         x, y = self.pbounds[ind].values()
         x = np.linspace(*x, num=gran)
         y = np.linspace(*y, num=gran)
@@ -403,7 +407,7 @@ class BayesianNonDormantOptimizer():
             plt.savefig(path)
         plt.close()
 
-    def plot(self, path:str=None):
+    def plot(self, path:str=None, data:list=None):
         """
         Plot the phenology graph for each year and the average
         
@@ -412,7 +416,9 @@ class BayesianNonDormantOptimizer():
         true = []
         model = []
 
-        for data in self.data_list:
+        data_list = self.data_list if data is None else data
+
+        for data in data_list:
             # Run model
             true_output, model_output = self.digtwin.run_from_data(data, args=self.opt_params)
             true.append(true_output)
@@ -530,7 +536,7 @@ class BayesianNonDormantOptimizer():
         norm_std = Normalize(vmin=std_min, vmax=std_max)
         norm_acq = Normalize(vmin=acq_min, vmax=acq_max)
 
-        fig, ax = plt.subplots(2,2)
+        fig, ax = plt.subplots(2,2, figsize=(10,8))
         fig.colorbar(cm.ScalarMappable(norm=norm_mean, cmap=cmap), ax=ax[0,0])
         fig.colorbar(cm.ScalarMappable(norm=norm_std, cmap=cmap), ax=ax[1,0])
         fig.colorbar(cm.ScalarMappable(norm=norm_acq, cmap=cmap), ax=ax[1,1])
@@ -549,6 +555,10 @@ class BayesianNonDormantOptimizer():
 
             max = np.argmax(self.samples[ind][:i+1,0])
 
+            ax[0,0].set_title("Gaussian Process Mean")
+            ax[1,0].set_title("Gaussian Process Variance")
+            ax[1,1].set_title("Acquisition Function")
+
             # GP Mean
             im1 = ax[0,0].contourf(X, Y, Z_mean, cmap=cmap,levels=levs, norm=norm_mean)
             ax[0,0].scatter(self.samples[ind][:i+1,1], self.samples[ind][:i+1,2], marker="x",c='k')
@@ -566,6 +576,17 @@ class BayesianNonDormantOptimizer():
             ax[1,1].axvline(self.samples[ind][i,1], c='k')
             ax[1,1].axhline(self.samples[ind][i,2], c='k')
 
+            # Bounds of GP search
+            xy = (self.bounds[ind][i][0,0], self.bounds[ind][i][1,0])
+            h = self.bounds[ind][i][1,1] - xy[1]
+            w = self.bounds[ind][i][0,1] - xy[0]
+            rect = patches.Rectangle(xy, w, h, linewidth=1, edgecolor='k', facecolor='none', linestyle='--')
+            ax[0,0].add_patch(rect)
+            rect = patches.Rectangle(xy, w, h, linewidth=1, edgecolor='k', facecolor='none', linestyle='--')
+            ax[1,0].add_patch(rect)
+            rect = patches.Rectangle(xy, w, h, linewidth=1, edgecolor='k', facecolor='none', linestyle='--')
+            ax[1,1].add_patch(rect)
+            
         ani = animation.FuncAnimation(fig, update, frames=len(self.gps[ind]), interval=500)
         writer = animation.FFMpegWriter(
            fps=2, metadata=dict(artist='Me'), bitrate=1800)

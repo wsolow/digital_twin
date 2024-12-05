@@ -1,7 +1,7 @@
 ModelConfig:
     base_fpath: /Users/wsolow/Projects/digital_twin/
     digtwin_file: data/test.csv
-    crop_config: env_config/
+    crop_config: configs/
     targ_cultivar: Aligote
     model_fpath: models/
 

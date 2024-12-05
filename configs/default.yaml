@@ -1,16 +1,16 @@
 # Configuration file for Phenology Optimizer
 
 # Data paths
-model_config_fpath: /env_config/config.yaml
+model_config_fpath: configs/dt_config.yaml
 # If true, use working directory. Otherwise, use path in config.yaml
 reset_base_fpath: True
-cultivar: Aligote
+cultivar: Durif
 
 # Optimizer configuration
-init_points: 50
-n_iter: 20
+init_points: 20
+n_iter: 50
 alpha: 1e-10
-acq: UCB
+acq: EI
 multithread: False
 # Exploration parameter for UCB
 kappa: 2.576

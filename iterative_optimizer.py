@@ -7,7 +7,7 @@ import numpy as np
 import load_data as ld
 from omegaconf import OmegaConf
 import pickle
-from pheno_optim import BayesianNonDormantOptimizer
+from bayesian_optimizer import BayesianNonDormantOptimizer
 import warnings
 from datetime import datetime
 import os
