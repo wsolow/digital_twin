@@ -610,12 +610,17 @@ def main():
     config = OmegaConf.load(f"configs/{args.config}.yaml")
 
     optim = BayesianNonDormantOptimizer(config)
+    st = time.time()
     optim.optimize()
+    print(f"Optimize time: {time.time()-st}")
+
+    st = time.time()
     for i in range(optim.n_stages):
         optim.plot_gp(i)
-        optim.animate_gp(i)
+        #optim.animate_gp(i)
     
     optim.plot()
+    print(f"Plot Time: {time.time()-st}")
 
     
 if __name__ == "__main__":
