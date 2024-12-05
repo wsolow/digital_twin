@@ -19,7 +19,7 @@ import matplotlib.animation as animation
 from matplotlib.colors import Normalize
 from matplotlib import cm
 
-import yaml, os, copy, warnings, pickle, threading, argparse
+import yaml, os, copy, warnings, pickle, threading, argparse, time
 from datetime import datetime
 from omegaconf import OmegaConf
 from collections import deque
@@ -109,6 +109,7 @@ class BayesianNonDormantOptimizer():
             OmegaConf.save(config=self.config, f=fp.name)
 
         for i in range(self.n_stages):
+            st = time.time()
             self.params = copy.deepcopy(self.opt_params)
             optimizer = BayesianOptimization(f=None, pbounds=self.pbounds[i], \
                                              bounds_transformer=self.bounds_transformer,
@@ -126,6 +127,7 @@ class BayesianNonDormantOptimizer():
                                          list(self.pbounds[i].keys()), self.stages[i], i)
             self.samples[i] = np.array(samples)
             self.optimizers[i] = optimizer
+            print(time.time()-st)
 
     def maximize(self, optimizer, vars:list, stage:str, ind:int):
         """

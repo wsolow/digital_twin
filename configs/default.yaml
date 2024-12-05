@@ -8,7 +8,7 @@ cultivar: Durif
 
 # Optimizer configuration
 init_points: 20
-n_iter: 50
+n_iter: 20
 alpha: 1e-10
 acq: EI
 multithread: False
