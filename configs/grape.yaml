@@ -59,7 +59,6 @@ CropParameters:
   EcoTypes:
     grape: &grape
       <<: *GenericC3
-    
       #
       # EMERGENCE
       #
@@ -95,7 +94,7 @@ CropParameters:
         - temperature sum from ripe onwards
         - ['C.d']
       DVSI:
-        - 0.0
+        - -1.0
         - Initial development stage
         - ['-']
       DVSM:

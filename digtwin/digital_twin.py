@@ -137,7 +137,7 @@ class DigitalTwin():
 
         # Get start and end dates to update crop model
         if self.data is None:
-            self.data = pd.read_csv(os.path.join(twin_config["base_fpath"], twin_config["digtwin_file"]), index_col=0)
+            self.data = pd.read_csv(os.path.join(os.getcwd(), twin_config["digtwin_file"]), index_col=0)
 
         start_date = datetime.datetime.strptime(self.data["DATE"].iloc[0], '%Y-%m-%d')
         end_date = datetime.datetime.strptime(self.data["DATE"].iloc[-1], '%Y-%m-%d')
@@ -184,7 +184,7 @@ class DigitalTwin():
 
         # Get start and end dates to update crop model
         if self.data is None:
-            self.data = pd.read_csv(os.path.join(twin_config["base_fpath"], twin_config["digtwin_file"]), index_col=0)
+            self.data = pd.read_csv(os.path.join(os.getcwd(), twin_config["digtwin_file"]), index_col=0)
 
         start_date = datetime.datetime.strptime(self.data["DATE"].iloc[0], '%Y-%m-%d')
         end_date = datetime.datetime.strptime(self.data["DATE"].iloc[-1], '%Y-%m-%d')
@@ -264,7 +264,6 @@ class GrapeModel():
         """
         Run a day in the model with the passed DRV
         """
-        self.model.drv = drv
         output = self.model.run(date=date, drv=drv)
 
         return output 

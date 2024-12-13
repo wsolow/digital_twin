@@ -53,10 +53,12 @@ class BayesianNonDormantOptimizer():
             self.loss_func = BayesianNonDormantOptimizer.compute_SUM
         elif config.loss_func == "SUM_SLICE":
             self.loss_func = BayesianNonDormantOptimizer.compute_SUM_SLICE
+        elif config.loss_func == "RMSE_SLICE" or config.loss_func == "MSE_SLICE":
+            self.loss_func = BayesianNonDormantOptimizer.compute_RMSE_SLICE
         else: 
             raise Exception(f"Unexpected Loss Function {config.loss_func}")
         
-        self.bounds_transformer = SequentialDomainReductionTransformer(eta=.99, \
+        self.bounds_transformer = SequentialDomainReductionTransformer(eta=.995, \
                                         minimum_window=[3, 50])
         
         # GP Parameters
@@ -241,7 +243,15 @@ class BayesianNonDormantOptimizer():
             true_output, model_output = self.digtwin.run_from_data(self.data_list[i], args=self.params, run_till=True)
             
             loss += self.loss_func(true_output, model_output, stage, self.stage_list[i])
-    
+
+        if len(self.data_list) != 0:
+            loss /= len(self.data_list)
+
+        if self.config.loss_func == "RMSE_SLICE":
+            loss = -np.sqrt(loss)
+        elif self.config.loss_func == "MSE_SLICE":
+            loss = -loss
+
         return loss
 
     def update_params(self, params):
@@ -296,6 +306,28 @@ class BayesianNonDormantOptimizer():
         model_output = model_output[args]
 
         return -np.sum(true_output != model_output)
+
+    @staticmethod
+    def compute_RMSE_SLICE(true, model, stage, val_stages):
+        curr_stage = (PHENOLOGY_INT[stage]) % len(PHENOLOGY_INT)
+        prev_stage = (PHENOLOGY_INT[stage]-1) % len(PHENOLOGY_INT)
+
+        model_output = model["PHENOLOGY"].to_numpy()
+        true_output = true["PHENOLOGY"].to_numpy()
+
+        true_stage_args = np.argwhere(true_output == curr_stage).flatten()
+        model_stage_args = np.argwhere(model_output == curr_stage).flatten()
+        true_prev_args = np.argwhere(true_output == prev_stage).flatten()
+        model_prev_args = np.argwhere(model_output == prev_stage).flatten()
+
+        args = np.unique(np.concatenate((true_stage_args, model_stage_args, true_prev_args, model_prev_args)))
+        
+        if len(args) == 0:
+            return 0
+        true_output = true_output[args]
+        model_output = model_output[args]
+
+        return (np.sum(true_output != model_output) ** 2)
     
     @staticmethod
     def compute_SUM_MODIFIED(true, model ,stage, val_stages):
@@ -338,10 +370,7 @@ class BayesianNonDormantOptimizer():
         config = yaml.safe_load(open(self.config_file))
         twin_config = config["ModelConfig"]
 
-        if self.config.reset_base_fpath:
-            twin_config["base_fpath"] = os.getcwd()
-
-        data = pd.read_csv(os.path.join(twin_config["base_fpath"], twin_config["digtwin_file"]), index_col=0)
+        data = pd.read_csv(os.path.join(os.getcwd(), twin_config["digtwin_file"]), index_col=0)
         return data, twin_config["targ_cultivar"]
 
     def save_model_twin(self, path:str):
@@ -440,10 +469,10 @@ class BayesianNonDormantOptimizer():
                 plt.savefig(f"{self.fpath}/Phenology/{self.cultivar}_PHENOLOGY_{start}.png")
             else:
                 plt.savefig(path)
-
+            plt.close()
         self.plot_avg(true, model, path=path)
         self.plot_avg_bar(true,model,path=path)
-        plt.close()
+        
 
     def plot_avg(self, true, model, path:str=None):
         """
@@ -471,20 +500,30 @@ class BayesianNonDormantOptimizer():
             plt.savefig(f"{self.fpath}/Phenology/{self.cultivar}_Average_PHENOLOGY.png")
         else:
             plt.savefig(path)
+        plt.close()
 
     def plot_avg_bar(self, true, model, path:str=None):
         avgs = np.zeros((self.n_stages, len(true)))
+        rmse = np.zeros((self.n_stages, len(true)))
         for s in range(self.n_stages):
             for i in range(len(true)):
                 avgs[s,i] = -BayesianNonDormantOptimizer.compute_SUM_SLICE(true[i], model[i], self.stages[s], [])
-
+                rmse[s,i] = BayesianNonDormantOptimizer.compute_RMSE_SLICE(true[i],model[i], self.stages[s], [])
+        
         avg = np.mean(avgs,axis=1)
         std = np.std(avgs,axis=1)
 
+        rmse_avg = np.sqrt(np.mean(rmse,axis=1))
+        rmse_std = np.sqrt(np.std(rmse,axis=1))
+
+
         x = np.arange(self.n_stages)
         plt.figure()
-        plt.bar(x, avg)
-        plt.errorbar(x, avg, std, color="k", fmt='none', capsize=10)
+        plt.bar(x-.2, avg, 0.4, label='MAE')
+        plt.bar(x+.2, rmse_avg, 0.4, label='RMSE')
+
+        plt.errorbar(x-.2, avg, std, color="k", fmt='none', capsize=10)
+        plt.errorbar(x+.2, rmse_avg, rmse_std, color="k", fmt='none',capsize=10)
 
         plt.title(f"{self.cultivar} Model Error")
         plt.xlabel("Stage")
@@ -494,6 +533,7 @@ class BayesianNonDormantOptimizer():
             plt.savefig(f"{self.fpath}/Phenology/{self.cultivar}_ErrorAVG_PHENOLOGY.png")
         else:
             plt.savefig(path)
+        plt.close()
 
 
     def animate_gp(self, ind:int, path:str=None):
@@ -603,12 +643,17 @@ def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", default="default", type=str, help="Path to Config")
+    parser.add_argument("--cultivar", default="Aligote",type=str)
     args = parser.parse_args()
 
     config = OmegaConf.load(f"configs/{args.config}.yaml")
+    config.cultivar = args.cultivar
 
     optim = BayesianNonDormantOptimizer(config)
+    print('optimizing....')
     optim.optimize()
+
+    optim.save_model(f"models/{config.cultivar}.pkl")
 
     for i in range(optim.n_stages):
         optim.plot_gp(i)
