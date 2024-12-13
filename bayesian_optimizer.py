@@ -646,14 +646,15 @@ def main():
     parser.add_argument("--cultivar", default="Aligote",type=str)
     args = parser.parse_args()
 
+    print(f"IN PYTHON NOW: {args.cultivar}")
+
     config = OmegaConf.load(f"configs/{args.config}.yaml")
     config.cultivar = args.cultivar
 
     optim = BayesianNonDormantOptimizer(config)
-    print('optimizing....')
     optim.optimize()
 
-    optim.save_model(f"models/{config.cultivar}.pkl")
+    optim.save_model(f"{optim.fpath}/{config.cultivar}.pkl")
 
     for i in range(optim.n_stages):
         optim.plot_gp(i)

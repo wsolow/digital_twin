@@ -1,14 +1,14 @@
-/var/spool/slurmd/job18186708/slurm_script: line 8: 79795 Killed                  python3 bayesian_optimizer.py --cultivar "Petit Verdot"
-slurmstepd: error: Detected 1 oom_kill event in StepId=18186708.batch. Some of the step tasks have been OOM Killed.
-/var/spool/slurmd/job18186704/slurm_script: line 8: 1700003 Killed                  python3 bayesian_optimizer.py --cultivar "Green Veltliner"
-slurmstepd: error: Detected 1 oom_kill event in StepId=18186704.batch. Some of the step tasks have been OOM Killed.
-/var/spool/slurmd/job18186707/slurm_script: line 8: 79759 Killed                  python3 bayesian_optimizer.py --cultivar "Nebbiolo"
-slurmstepd: error: Detected 1 oom_kill event in StepId=18186707.batch. Some of the step tasks have been OOM Killed.
-/var/spool/slurmd/job18186718/slurm_script: line 8: 79828 Killed                  python3 bayesian_optimizer.py --cultivar "Zinfandel"
-slurmstepd: error: Detected 1 oom_kill event in StepId=18186718.batch. Some of the step tasks have been OOM Killed.
-/var/spool/slurmd/job18186702/slurm_script: line 8: 98693 Killed                  python3 bayesian_optimizer.py --cultivar "Concord"
-slurmstepd: error: Detected 1 oom_kill event in StepId=18186702.batch. Some of the step tasks have been OOM Killed.
-/var/spool/slurmd/job18186706/slurm_script: line 8: 79718 Killed                  python3 bayesian_optimizer.py --cultivar "Muscat Blanc"
-slurmstepd: error: Detected 1 oom_kill event in StepId=18186706.batch. Some of the step tasks have been OOM Killed.
-/var/spool/slurmd/job18186705/slurm_script: line 8: 79650 Killed                  python3 bayesian_optimizer.py --cultivar "Merlot"
-slurmstepd: error: Detected 1 oom_kill event in StepId=18186705.batch. Some of the step tasks have been OOM Killed.
+Traceback (most recent call last):
+  File "/nfs/hpc/share/soloww/digital_twin/bayesian_optimizer.py", line 667, in <module>
+    main()
+  File "/nfs/hpc/share/soloww/digital_twin/bayesian_optimizer.py", line 655, in main
+    optim.optimize()
+  File "/nfs/hpc/share/soloww/digital_twin/bayesian_optimizer.py", line 127, in optimize
+    samples = self.maximize(optimizer, \
+  File "/nfs/hpc/share/soloww/digital_twin/bayesian_optimizer.py", line 162, in maximize
+    target = self.compute_loss(stage)
+  File "/nfs/hpc/share/soloww/digital_twin/bayesian_optimizer.py", line 243, in compute_loss
+    true_output, model_output = self.digtwin.run_from_data(self.data_list[i], args=self.params, run_till=True)
+  File "/nfs/hpc/share/soloww/digital_twin/digtwin/digital_twin.py", line 78, in run_from_data
+    self.start_date = datetime.datetime.strptime(data["DATE"].iloc[0], '%Y-%m-%d')
+IndexError: only integers, slices (`:`), ellipsis (`...`), numpy.newaxis (`None`) and integer or boolean arrays are valid indices
