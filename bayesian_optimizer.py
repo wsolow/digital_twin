@@ -19,10 +19,11 @@ import matplotlib.animation as animation
 from matplotlib.colors import Normalize
 from matplotlib import cm
 
-import yaml, os, copy, warnings, pickle, threading, argparse, time
+import yaml, os, copy, warnings, pickle, threading, argparse, time, sys
 from datetime import datetime
 from omegaconf import OmegaConf
 from collections import deque
+
 
 PHENOLOGY_INT = {"Ecodorm":0, "Budbreak":1, "Flowering":2, "Veraison":3, "Ripe":4, "Endodorm":5}
 
@@ -55,6 +56,8 @@ class BayesianNonDormantOptimizer():
             self.loss_func = BayesianNonDormantOptimizer.compute_SUM_SLICE
         elif config.loss_func == "RMSE_SLICE" or config.loss_func == "MSE_SLICE":
             self.loss_func = BayesianNonDormantOptimizer.compute_RMSE_SLICE
+        elif config.loss_func == "RMSE_DIFF":
+            self.loss_func = BayesianNonDormantOptimizer.compute_RMSE_DIFF
         else: 
             raise Exception(f"Unexpected Loss Function {config.loss_func}")
         
@@ -247,7 +250,7 @@ class BayesianNonDormantOptimizer():
         if len(self.data_list) != 0:
             loss /= len(self.data_list)
 
-        if self.config.loss_func == "RMSE_SLICE":
+        if self.config.loss_func == "RMSE_SLICE" or self.config.loss_func == "RMSE_DIFF":
             loss = -np.sqrt(loss)
         elif self.config.loss_func == "MSE_SLICE":
             loss = -loss
@@ -328,6 +331,22 @@ class BayesianNonDormantOptimizer():
         model_output = model_output[args]
 
         return (np.sum(true_output != model_output) ** 2)
+
+    @staticmethod
+    def compute_RMSE_DIFF(true, model, stage, val_stages):
+        curr_stage = (PHENOLOGY_INT[stage]) % len(PHENOLOGY_INT)
+        prev_stage = (PHENOLOGY_INT[stage]-1) % len(PHENOLOGY_INT)
+
+        model_output = model["PHENOLOGY"].to_numpy()
+        true_output = true["PHENOLOGY"].to_numpy()
+
+        true_stage_args = np.argwhere(true_output == curr_stage).flatten()
+        model_stage_args = np.argwhere(model_output == curr_stage).flatten()
+
+        true_ind = true_stage_args[0] if len(true_stage_args) > 0 else len(true_output)
+        model_ind = model_stage_args[0] if len(model_stage_args) > 0 else len(model_output)
+        
+        return (true_ind - model_ind) ** 2
     
     @staticmethod
     def compute_SUM_MODIFIED(true, model ,stage, val_stages):
@@ -507,7 +526,8 @@ class BayesianNonDormantOptimizer():
         rmse = np.zeros((self.n_stages, len(true)))
         for s in range(self.n_stages):
             for i in range(len(true)):
-                avgs[s,i] = -BayesianNonDormantOptimizer.compute_SUM_SLICE(true[i], model[i], self.stages[s], [])
+                avgs[s,i] = BayesianNonDormantOptimizer.compute_RMSE_DIFF(true[i], model[i], self.stages[s], [])
+                #avgs[s,i] = -BayesianNonDormantOptimizer.compute_SUM_SLICE(true[i], model[i], self.stages[s], [])
                 rmse[s,i] = BayesianNonDormantOptimizer.compute_RMSE_SLICE(true[i],model[i], self.stages[s], [])
         
         avg = np.mean(avgs,axis=1)
@@ -645,8 +665,6 @@ def main():
     parser.add_argument("--config", default="default", type=str, help="Path to Config")
     parser.add_argument("--cultivar", default="Aligote",type=str)
     args = parser.parse_args()
-
-    print(f"IN PYTHON NOW: {args.cultivar}")
 
     config = OmegaConf.load(f"configs/{args.config}.yaml")
     config.cultivar = args.cultivar
