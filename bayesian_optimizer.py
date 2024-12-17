@@ -460,7 +460,10 @@ class BayesianNonDormantOptimizer():
         Plot the phenology graph for each year and the average
         
         """
-        os.makedirs(f"{self.fpath}/Phenology",exist_ok=True)
+        if path is not None:
+            os.makedirs(f"{path}",exist_ok=True)
+        else:
+            os.makedirs(f"{self.fpath}/Phenology",exist_ok=True)
         true = []
         model = []
 
@@ -487,7 +490,7 @@ class BayesianNonDormantOptimizer():
             if path is None:
                 plt.savefig(f"{self.fpath}/Phenology/{self.cultivar}_PHENOLOGY_{start}.png")
             else:
-                plt.savefig(path)
+                plt.savefig(f"{path}/{self.cultivar}_PHENOLOGY_{start}.png")
             plt.close()
         self.plot_avg(true, model, path=path)
         self.plot_avg_bar(true,model,path=path)
@@ -518,7 +521,7 @@ class BayesianNonDormantOptimizer():
         if path is None:
             plt.savefig(f"{self.fpath}/Phenology/{self.cultivar}_Average_PHENOLOGY.png")
         else:
-            plt.savefig(path)
+            plt.savefig(f"{path}/{self.cultivar}_Average_PHENOLOGY.png")
         plt.close()
 
     def plot_avg_bar(self, true, model, path:str=None):
@@ -526,21 +529,28 @@ class BayesianNonDormantOptimizer():
         rmse = np.zeros((self.n_stages, len(true)))
         for s in range(self.n_stages):
             for i in range(len(true)):
-                avgs[s,i] = BayesianNonDormantOptimizer.compute_RMSE_DIFF(true[i], model[i], self.stages[s], [])
-                #avgs[s,i] = -BayesianNonDormantOptimizer.compute_SUM_SLICE(true[i], model[i], self.stages[s], [])
-                rmse[s,i] = BayesianNonDormantOptimizer.compute_RMSE_SLICE(true[i],model[i], self.stages[s], [])
+                avgs[s,i] = -BayesianNonDormantOptimizer.compute_SUM_SLICE(true[i], model[i], self.stages[s], [])
+                if self.config.loss_func == "RMSE_DIFF":
+                    rmse[s,i] = BayesianNonDormantOptimizer.compute_RMSE_DIFF(true[i],model[i], self.stages[s], [])
+                elif self.config.loss_func == "RMSE_SLICE":
+                    rmse[s,i] = BayesianNonDormantOptimizer.compute_RMSE_SLICE(true[i],model[i], self.stages[s], [])
+                else:
+                    rmse[s,i] = BayesianNonDormantOptimizer.compute_RMSE_SLICE(true[i],model[i], self.stages[s], [])
         
         avg = np.mean(avgs,axis=1)
         std = np.std(avgs,axis=1)
 
-        rmse_avg = np.sqrt(np.mean(rmse,axis=1))
-        rmse_std = np.sqrt(np.std(rmse,axis=1))
-
+        if self.config.loss_func == "RMSE_DIFF" or self.config.loss_func == "RMSE_SLICE":
+            rmse_avg = np.sqrt(np.mean(rmse,axis=1))
+            rmse_std = np.sqrt(np.std(rmse,axis=1))
+        else: 
+            rmse_avg = np.mean(rmse,axis=1)
+            rmse_std = np.std(rmse,axis=1)
 
         x = np.arange(self.n_stages)
         plt.figure()
         plt.bar(x-.2, avg, 0.4, label='MAE')
-        plt.bar(x+.2, rmse_avg, 0.4, label='RMSE')
+        plt.bar(x+.2, rmse_avg, 0.4, label=f"{self.config.loss_func}")
 
         plt.errorbar(x-.2, avg, std, color="k", fmt='none', capsize=10)
         plt.errorbar(x+.2, rmse_avg, rmse_std, color="k", fmt='none',capsize=10)
@@ -552,7 +562,7 @@ class BayesianNonDormantOptimizer():
         if path is None:
             plt.savefig(f"{self.fpath}/Phenology/{self.cultivar}_ErrorAVG_PHENOLOGY.png")
         else:
-            plt.savefig(path)
+            plt.savefig(f"{path}/{self.cultivar}_ErrorAVG_PHENOLOGY.png")
         plt.close()
 
 

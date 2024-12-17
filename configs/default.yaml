@@ -6,8 +6,8 @@ model_config_fpath: configs/dt_config.yaml
 cultivar: Aligote
 
 # Optimizer configuration
-init_points: 300
-n_iter: 300
+init_points: 100
+n_iter: 100
 alpha: 1e-10
 acq: EI
 multithread: False
