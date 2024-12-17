@@ -6,4 +6,4 @@
 #SBATCH -t 1-00:00:00
 
 CULTIVAR="$1"
-python3 bayesian_optimizer.py --cultivar "$CULTIVAR"
+python3 eval.py --cultivar "$CULTIVAR"

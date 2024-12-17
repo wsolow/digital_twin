@@ -12,7 +12,8 @@ cultivars=("Aligote" "Alvarinho" "Auxerrois" "Barbera" "Cabernet_Franc"
 # Loop through the input values
 for cultivar in "${cultivars[@]}"; do
     # Submit the job with the current input as an argument
-    sbatch single.sbatch "$cultivar"
+    #sbatch single.sbatch "$cultivar"
+    python3 eval.py --cultivar "$cultivar"
 done
 
 echo "Submitted jobs with varying inputs: ${cultivars[*]}"

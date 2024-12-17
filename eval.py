@@ -5,7 +5,7 @@
 
 Written by: Will Solow, 2024
 """
-import pickle, argparse, warnings, os
+import pickle, argparse, warnings, os, sys
 import numpy as np
 from bayesian_optimizer import BayesianNonDormantOptimizer
 from omegaconf import OmegaConf
@@ -24,14 +24,18 @@ def main():
 
     optim = BayesianNonDormantOptimizer(config)
 
-    fpath = f"{os.getcwd()}/logs/single/Aligote/Aligote_2024-12-16_18:18:23"
+    folder =  f"{os.getcwd()}/logs/single/{config.cultivar}"
+    
+    subfolders = [ f.path for f in os.scandir(folder) if f.is_dir() ]
 
-    filename = f"{fpath}/{config.cultivar}.pkl"
+    for fpath in subfolders:
 
-    with open(filename, "rb") as f:
-        optim.opt_params = pickle.load(f)
+        filename = f"{fpath}/{config.cultivar}.pkl"
 
-    optim.plot(path=f"{fpath}/plots/")
+        with open(filename, "rb") as f:
+            optim.opt_params = pickle.load(f)
+
+        optim.plot(path=f"{fpath}/plots/")
 
 if __name__ == "__main__":
     main()

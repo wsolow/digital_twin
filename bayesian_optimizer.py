@@ -549,8 +549,8 @@ class BayesianNonDormantOptimizer():
 
         x = np.arange(self.n_stages)
         plt.figure()
-        plt.bar(x-.2, avg, 0.4, label='MAE')
-        plt.bar(x+.2, rmse_avg, 0.4, label=f"{self.config.loss_func}")
+        plt.bar(x-.2, avg, 0.4, label='Training Error')
+        plt.bar(x+.2, rmse_avg, 0.4, label=f"Average Error (Days)")
 
         plt.errorbar(x-.2, avg, std, color="k", fmt='none', capsize=10)
         plt.errorbar(x+.2, rmse_avg, rmse_std, color="k", fmt='none',capsize=10)
