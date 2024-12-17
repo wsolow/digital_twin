@@ -34,7 +34,7 @@ class BayesianNonDormantOptimizer():
     def __init__(self, config, data_list:list=None, stage_list:list=None):
         
         self.stages = ["Budbreak", "Flowering", "Veraison", "Ripe"]
-        self.n_stages = 4
+        self.n_stages = config.n_stages
         self.config_file = f"{os.getcwd()}/{config.model_config_fpath}"
         self.config = config
 
