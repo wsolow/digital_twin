@@ -312,6 +312,10 @@ def load_and_process_data_nondormant(cultivar: str):
         if PHENOLOGY_INT["Harvest"] in pheno_states:
             year_stages.append(PHENOLOGY_INT["Harvest"])
 
+        # Only go through the onset of dormancy
+        if len(dorm) != 0:
+            year_df = year_df[:int(dorm[0])]
+
         # Otherwise append
         df_list.append(year_df)
         stages_list.append(year_stages)

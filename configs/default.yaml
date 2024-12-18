@@ -4,11 +4,11 @@
 model_config_fpath: configs/dt_config.yaml
 # If true, use working directory. Otherwise, use path in config.yaml
 cultivar: Aligote
-n_stages: 3 # 4 is default
+n_stages: 4 # 4 is default
 
 # Optimizer configuration
-init_points: 100
-n_iter: 100
+init_points: 10
+n_iter: 10
 alpha: 1e-10
 acq: EI
 multithread: False
