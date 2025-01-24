@@ -1,6 +1,6 @@
 ModelConfig:
     digtwin_file: data/test.csv
-    crop_config: configs/
+    config_fpath: configs/
     targ_cultivar: Aligote
     model_fpath: models/
 

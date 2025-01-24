@@ -121,7 +121,7 @@ class DigitalTwin():
         
         config = yaml.safe_load(open(config_fpath))
         agro = config["CropConfig"]
-        crop_fpath = config["ModelConfig"]["crop_config"]
+        crop_fpath = config["ModelConfig"]["config_fpath"]
         twin_config = config["ModelConfig"]
 
         # Create crop configuration

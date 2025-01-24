@@ -11,7 +11,7 @@ def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", default="default", type=str, help="Path to Config")
-    parser.add_argument("--cultivar", default="Aligote",type=str)
+    parser.add_argument("--cultivar", default="Chardonnay",type=str)
     args = parser.parse_args()
 
     config = OmegaConf.load(f"configs/{args.config}.yaml")

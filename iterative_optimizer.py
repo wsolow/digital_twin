@@ -1,12 +1,12 @@
 """
-Class for optimizing the phenology
+Class for optimizing the phenology by iteratively adding more data
+
 """
 
 import argparse
 import numpy as np
 import load_data as ld
 from omegaconf import OmegaConf
-import pickle
 from bayesian_optimizer import BayesianNonDormantOptimizer
 import warnings
 from datetime import datetime
@@ -215,7 +215,7 @@ def main():
 
     optim = IterativeOptimizer(config)
     for _ in range(config.num_runs):
-        optim.optimize_with_val()
+        optim.optimize()
     optim.plot_losses()
 
     
