@@ -1,0 +1,13 @@
+model_config_fpath: configs/dt_config.yaml
+cultivar: Nebbiolo
+init_points: 300
+n_iter: 300
+alpha: 1.0e-10
+acq: EI
+multithread: false
+kappa: 2.576
+xi: 0.01
+loss_func: RMSE_SLICE
+num_runs: 5
+kernel: RBF
+nu: 2.5
