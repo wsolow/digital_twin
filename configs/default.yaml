@@ -16,7 +16,7 @@ multithread: False
 kappa: 2.576
 # Exploration parameter for expected improvement
 xi: 0.01
-loss_func: RMSE_DIFF # SUM or SUM_SLICE or RMSE_SLICE or MSE_SLICE or RMSE_DIFF
+loss_func: RMSE_SLICE # SUM or SUM_SLICE or RMSE_SLICE or MSE_SLICE or RMSE_DIFF
 num_runs: 5
 
 # Kernel parameters

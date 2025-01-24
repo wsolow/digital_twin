@@ -23,14 +23,14 @@ def main():
     config.cultivar = args.cultivar
 
     optim = BayesianNonDormantOptimizer(config)
-    fpath = f"{os.getcwd()}/logs/single/Riesling/Riesling_2024-12-13_10:20:30"
+    """fpath = f"{os.getcwd()}/logs/single/Riesling/Riesling_2024-12-13_10:20:30"
     filename = f"{fpath}/Riesling.pkl"
 
     with open(filename, "rb") as f:
         optim.opt_params = pickle.load(f)
 
     optim.plot(path=f"{fpath}/plots/")
-    sys.exit(0)
+    sys.exit(0)"""
 
     folder =  f"{os.getcwd()}/logs/single/{config.cultivar}"
     
