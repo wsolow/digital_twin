@@ -396,6 +396,22 @@ class BayesianNonDormantOptimizer():
             return len(true_stage_args) + len(model_stage_args)
         else:
             return np.abs(true_stage_args[0] - model_stage_args[0])
+        
+    @staticmethod
+    def compute_RMSE_STAGE(true, model, stage, val_stages):
+        curr_stage = (PHENOLOGY_INT[stage]) % len(PHENOLOGY_INT)
+        prev_stage = (PHENOLOGY_INT[stage]-1) % len(PHENOLOGY_INT)
+
+        model_output = model["PHENOLOGY"].to_numpy()
+        true_output = true["PHENOLOGY"].to_numpy()
+
+        true_stage_args = np.argwhere(true_output == curr_stage).flatten()
+        model_stage_args = np.argwhere(model_output == curr_stage).flatten()
+        
+        if len(true_stage_args) == 0 or len(model_stage_args) == 0:
+            return len(true_stage_args) + len(model_stage_args)
+        else:
+            return (true_stage_args[0] - model_stage_args[0])**2
 
 
     def load_config_data(self):
@@ -626,14 +642,14 @@ class BayesianNonDormantOptimizer():
         rmse = np.zeros((2, self.n_stages-1, len(true)))
         for s in range(self.n_stages-1):
             for i in range(len(true)):
-                rmse[0, s,i] = BayesianNonDormantOptimizer.compute_SUM_STAGE(true[i],model_1[i], self.stages[s], [])
-                rmse[1, s,i] = BayesianNonDormantOptimizer.compute_SUM_STAGE(true[i],model_2[i], self.stages[s], [])
+                rmse[0, s,i] = BayesianNonDormantOptimizer.compute_RMSE_STAGE(true[i],model_1[i], self.stages[s], [])
+                rmse[1, s,i] = BayesianNonDormantOptimizer.compute_RMSE_STAGE(true[i],model_2[i], self.stages[s], [])
         
-        rmse_avg = np.mean(rmse,axis=-1)
-        rmse_std = np.std(rmse,axis=-1)
+        rmse_avg = np.sqrt(np.mean(rmse,axis=-1))
+        rmse_std = np.sqrt(np.mean(rmse,axis=-1))
 
         with open("data.txt", "a") as f:
-            f.write(f"{self.cultivar}, {np.round(rmse_avg[0],decimals=21)}\n")
+            f.write(f"{self.cultivar}, {np.round(rmse_avg[0],decimals=4)}, {np.round(rmse_std[0],decimals=4)}\n")
         f.close()
         x = np.arange(self.n_stages-1)
         plt.figure()
