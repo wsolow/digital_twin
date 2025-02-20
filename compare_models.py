@@ -22,9 +22,13 @@ def main():
     with open(f"configs/grape.yaml", "rb") as f:
         params = yaml.safe_load(f)
     
-    params_1 = params["CropParameters"]["Varieties"][f"{config.cultivar}"]
-    params_2 = params["CropParameters"]["Varieties"][f"{config.cultivar}_Keller"]
-
+    try: 
+        params_1 = params["CropParameters"]["Varieties"][f"{config.cultivar}"]
+        params_2 = params["CropParameters"]["Varieties"][f"{config.cultivar}_Keller"]
+    except:
+        params_1 = params["CropParameters"]["Varieties"][f"{config.cultivar}"]
+        params_2 = params["CropParameters"]["Varieties"][f"{config.cultivar}"]
+        
     params_1 = {k:v[0] for k, v in params_1.items()}
     params_2 = {k:v[0] for k, v in params_2.items()}
 

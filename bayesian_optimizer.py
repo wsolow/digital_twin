@@ -409,7 +409,7 @@ class BayesianNonDormantOptimizer():
         model_stage_args = np.argwhere(model_output == curr_stage).flatten()
         
         if len(true_stage_args) == 0 or len(model_stage_args) == 0:
-            return len(true_stage_args) + len(model_stage_args)
+            return (len(true_stage_args) + len(model_stage_args)) **2
         else:
             return (true_stage_args[0] - model_stage_args[0])**2
 
@@ -561,7 +561,9 @@ class BayesianNonDormantOptimizer():
         rmse = np.zeros((self.n_stages, len(true)))
         for s in range(self.n_stages):
             for i in range(len(true)):
+
                 avgs[s,i] = -BayesianNonDormantOptimizer.compute_SUM_SLICE(true[i], model[i], self.stages[s], [])
+                
                 if self.config.loss_func == "RMSE_DIFF":
                     rmse[s,i] = BayesianNonDormantOptimizer.compute_RMSE_DIFF(true[i],model[i], self.stages[s], [])
                 elif self.config.loss_func == "RMSE_SLICE":
@@ -598,6 +600,79 @@ class BayesianNonDormantOptimizer():
         plt.close()
 
     def plot_comparison_bar(self, param_set_1, param_set_2, path:str=None, data:list=None):
+        """
+        Plot the phenology graph for each year and the average
+        
+        """
+        if path is not None:
+            os.makedirs(f"{path}",exist_ok=True)
+        else:
+            os.makedirs(f"{self.fpath}/Phenology",exist_ok=True)
+        true = []
+        model_1 = []
+        model_2 = []
+
+        data_list = self.data_list if data is None else data
+
+        for data in data_list:
+            # Run model
+            true_output_1, model_output_1 = self.digtwin.run_from_data(data, args=param_set_1)
+            true_output_2, model_output_2 = self.digtwin.run_from_data(data, args=param_set_2)
+            true.append(true_output_1)
+            model_1.append(model_output_1)
+            model_2.append(model_output_2)
+
+            x = np.arange(len(true_output_1))
+            plt.figure()
+            plt.plot(x, true_output_1["PHENOLOGY"],label='True Data')
+            plt.plot(x, model_output_1["PHENOLOGY"], label='Our Model')
+            plt.plot(x, model_output_2["PHENOLOGY"], label='Keller Model')
+
+            start = true_output_1["DATE"].iloc[0]
+            end = true_output_1["DATE"].iloc[-1]
+            plt.title(f"{self.cultivar} Phenology from {start} to {end}")
+            plt.ylabel('Phenology Stage')
+            plt.yticks(ticks=[0,1,2,3,4,5], labels=['Ecodorm', 'BudBreak', 'Flower', 'Veraison', 'Ripe', 'Endodorm'], rotation=45)
+            plt.xlabel(f'Days since {start}')
+            plt.legend()
+            if path is None:
+                plt.savefig(f"{self.fpath}/Phenology/{self.cultivar}_PHENOLOGY_{start}.png")
+            else:
+                plt.savefig(f"{path}/{self.cultivar}_PHENOLOGY_{start}.png")
+            plt.close()
+
+        rmse = np.zeros((2, self.n_stages-1, len(true)))
+        for s in range(self.n_stages-1):
+            for i in range(len(true)):
+                rmse[0, s,i] = BayesianNonDormantOptimizer.compute_RMSE_STAGE(true[i],model_1[i], self.stages[s], [])
+                rmse[1, s,i] = BayesianNonDormantOptimizer.compute_RMSE_STAGE(true[i],model_2[i], self.stages[s], [])
+        
+        rmse_avg = np.sqrt(np.mean(rmse,axis=-1))
+        rmse_std = np.sqrt(np.mean(rmse,axis=-1))
+
+        with open("data.txt", "a") as f:
+            f.write(f"{self.cultivar}, {np.round(rmse_avg[0],decimals=4)}, {np.round(rmse_std[0],decimals=4)}\n")
+        f.close()
+        x = np.arange(self.n_stages-1)
+        plt.figure()
+        plt.bar(x, rmse_avg[0], 0.4, label='Ours')
+
+        plt.errorbar(x, rmse_avg[0], rmse_std[0], color="k", fmt='none', capsize=10)
+
+        plt.title(f"{self.cultivar} Model Error")
+        plt.xlabel("Stage")
+        plt.xticks(ticks=x, labels=self.stages[:-1], rotation=0)
+        plt.ylabel("Average Error in Days")
+        plt.legend()
+
+        if path is None:
+            plt.savefig(f"{self.fpath}/Phenology/{self.cultivar}_Error_Comparison.png")
+        else:
+            plt.savefig(f"{path}/{self.cultivar}_Error_Comparison.png")
+        plt.close()
+
+   
+    def plot_comparison_bar_old(self, param_set_1, param_set_2, path:str=None, data:list=None):
         """
         Plot the phenology graph for each year and the average
         
