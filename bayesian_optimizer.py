@@ -671,6 +671,8 @@ class BayesianNonDormantOptimizer():
             plt.savefig(f"{path}/{self.cultivar}_Error_Comparison.png")
         plt.close()
 
+        return rmse_avg[0]
+
     def animate_gp(self, ind:int, path:str=None):
         gran = 50
         levs = 100

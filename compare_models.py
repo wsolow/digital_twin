@@ -23,12 +23,14 @@ def main():
         params = yaml.safe_load(f)
     
     params_1 = params["CropParameters"]["Varieties"][f"{config.cultivar}"]
-    params_2 = params["CropParameters"]["Varieties"][f"{config.cultivar}_Keller"]
-
+    #params_2 = params["CropParameters"]["Varieties"][f"{config.cultivar}_Keller"]
+    params_2 = params_1
     params_1 = {k:v[0] for k, v in params_1.items()}
     params_2 = {k:v[0] for k, v in params_2.items()}
 
-    optim.plot_comparison_bar(params_1, params_2, path=f"logs/comparisons/{config.cultivar}/")
+    rmse_avg = optim.plot_comparison_bar(params_1, params_2, path=f"logs/comparisons/{config.cultivar}/")
+
+    print(f"{config.cultivar}", rmse_avg)
 
 if __name__ == "__main__":
     main()
