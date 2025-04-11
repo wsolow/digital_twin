@@ -7,8 +7,8 @@ cultivar: Aligote
 n_stages: 4 # 4 is default
 
 # Optimizer configuration
-init_points: 10
-n_iter: 10
+init_points: 300
+n_iter: 300
 alpha: 1e-10
 acq: EI
 multithread: False

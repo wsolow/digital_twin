@@ -9,7 +9,7 @@ import sys
 import math
 from pathlib import Path
 
-DATASET_DIRECTORY = f"{Path(os.getcwd()).parent.absolute()}/grape_datasets/"
+DATASET_DIRECTORY = f"{Path(os.getcwd()).parent.absolute()}/grape-datasets/"
 
 GRAPE_CULTIVARS = ['Aligote', 'Alvarinho', 'Auxerrois', 'Barbera', 'Cabernet Franc', 
                    'Cabernet Sauvignon', 'Chardonnay', 'Chenin Blanc', 'Concord', 

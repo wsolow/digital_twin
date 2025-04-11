@@ -24,6 +24,9 @@ from datetime import datetime
 from omegaconf import OmegaConf
 from collections import deque
 
+import torch
+import random
+
 
 PHENOLOGY_INT = {"Ecodorm":0, "Budbreak":1, "Flowering":2, "Veraison":3, "Ripe":4, "Endodorm":5}
 
@@ -85,6 +88,14 @@ class BayesianNonDormantOptimizer():
             self.data_list = data_list
             self.stage_list = stage_list
 
+        # Test set is 2 years
+        inds = np.arange(len(self.data_list))
+        np.random.shuffle(inds)
+        self.train_data_list = self.data_list[inds][:-2]
+        self.test_data_list = self.data_list[inds][-2:]
+        self.train_stage_list = self.stage_list[inds][:-2]
+        self.test_stage_list = self.stage_list[inds][-2:]
+
         self.digtwin = dt.DigitalTwin(config_fpath=self.config_file)
         self.params = self.digtwin.get_param_dict()
         self.all_params = []
@@ -106,7 +117,7 @@ class BayesianNonDormantOptimizer():
         """
         self.stage_params = []
         if path is None:
-            self.fpath = f"logs/single/{self.cultivar}/{self.cultivar}_{datetime.now().strftime('%Y-%m-%d_%H:%M:%S')}"
+            self.fpath = f"logs/calib/{self.cultivar}/{self.cultivar}_{datetime.now().strftime('%Y-%m-%d_%H:%M:%S')}"
         else:
             self.fpath = path
         os.makedirs(self.fpath, exist_ok=True)
@@ -224,31 +235,31 @@ class BayesianNonDormantOptimizer():
         """
         loss = 0
 
-        for i in range(len(self.data_list)):
+        for i in range(len(self.train_data_list)):
             if stage == "Endodorm" or stage == "Ecodorm":
                 pass
             else:
                 # For all stages, check if the previous stage is there
-                if PHENOLOGY_INT[stage]-1 not in self.stage_list[i]:
+                if PHENOLOGY_INT[stage]-1 not in self.train_stage_list[i]:
                     continue
                 
                 # If not ripe, check the current stage is there
                 if stage != "Ripe":
-                    if PHENOLOGY_INT[stage] not in self.stage_list[i]:
+                    if PHENOLOGY_INT[stage] not in self.train_stage_list[i]:
                         continue
                 
                 # For bud break and flowering, check that the next stage is there
                 if stage == "Budbreak" or stage == "Flowering":
-                    if PHENOLOGY_INT["Endodorm"] in self.stage_list[i] and \
-                        PHENOLOGY_INT[stage]+1 not in self.stage_list[i]:
+                    if PHENOLOGY_INT["Endodorm"] in self.train_stage_list[i] and \
+                        PHENOLOGY_INT[stage]+1 not in self.train_stage_list[i]:
                         continue
   
-            true_output, model_output = self.digtwin.run_from_data(self.data_list[i], args=self.params, run_till=True)
+            true_output, model_output = self.digtwin.run_from_data(self.train_data_list[i], args=self.params, run_till=True)
             
-            loss += self.loss_func(true_output, model_output, stage, self.stage_list[i])
+            loss += self.loss_func(true_output, model_output, stage, self.train_stage_list[i])
 
-        if len(self.data_list) != 0:
-            loss /= len(self.data_list)
+        if len(self.train_data_list) != 0:
+            loss /= len(self.train_data_list)
 
         if self.config.loss_func == "RMSE_SLICE" or self.config.loss_func == "RMSE_DIFF":
             loss = -np.sqrt(loss)
@@ -597,7 +608,7 @@ class BayesianNonDormantOptimizer():
             plt.savefig(f"{path}/{self.cultivar}_ErrorAVG_PHENOLOGY.png")
         plt.close()
 
-    def plot_comparison_bar(self, param_set_1, param_set_2, path:str=None, data:list=None):
+    def plot_comparison_bar(self, param_set_1, path:str=None, data:list=None, plot=True, train=True):
         """
         Plot the phenology graph for each year and the average
         
@@ -608,68 +619,75 @@ class BayesianNonDormantOptimizer():
             os.makedirs(f"{self.fpath}/Phenology",exist_ok=True)
         true = []
         model_1 = []
-        model_2 = []
 
-        data_list = self.data_list if data is None else data
+        if data is None:
+            if train:
+                data_list = self.train_data_list
+            else:
+                data_list = self.test_data_list
+        else:
+            data_list = data
 
         for data in data_list:
             # Run model
             true_output_1, model_output_1 = self.digtwin.run_from_data(data, args=param_set_1)
-            true_output_2, model_output_2 = self.digtwin.run_from_data(data, args=param_set_2)
             true.append(true_output_1)
             model_1.append(model_output_1)
-            model_2.append(model_output_2)
 
-            x = np.arange(len(true_output_1))
-            plt.figure()
-            plt.plot(x, true_output_1["PHENOLOGY"],label='True Data')
-            plt.plot(x, model_output_1["PHENOLOGY"], label='Our Model')
-            plt.plot(x, model_output_2["PHENOLOGY"], label='Keller Model')
+            if plot:
+                x = np.arange(len(true_output_1))
+                plt.figure()
+                plt.plot(x, true_output_1["PHENOLOGY"],label='True Data')
+                plt.plot(x, model_output_1["PHENOLOGY"], label='Our Model')
 
-            start = true_output_1["DATE"].iloc[0]
-            end = true_output_1["DATE"].iloc[-1]
-            plt.title(f"{self.cultivar} Phenology from {start} to {end}")
-            plt.ylabel('Phenology Stage')
-            plt.yticks(ticks=[0,1,2,3,4,5], labels=['Ecodorm', 'BudBreak', 'Flower', 'Veraison', 'Ripe', 'Endodorm'], rotation=45)
-            plt.xlabel(f'Days since {start}')
-            plt.legend()
-            if path is None:
-                plt.savefig(f"{self.fpath}/Phenology/{self.cultivar}_PHENOLOGY_{start}.png")
-            else:
-                plt.savefig(f"{path}/{self.cultivar}_PHENOLOGY_{start}.png")
-            plt.close()
+                start = true_output_1["DATE"].iloc[0]
+                end = true_output_1["DATE"].iloc[-1]
+                plt.title(f"{self.cultivar} Phenology from {start} to {end}")
+                plt.ylabel('Phenology Stage')
+                plt.yticks(ticks=[0,1,2,3,4,5], labels=['Ecodorm', 'BudBreak', 'Flower', 'Veraison', 'Ripe', 'Endodorm'], rotation=45)
+                plt.xlabel(f'Days since {start}')
+                plt.legend()
+                if path is None:
+                    plt.savefig(f"{self.fpath}/Phenology/{self.cultivar}_PHENOLOGY_{start}.png")
+                else:
+                    plt.savefig(f"{path}/{self.cultivar}_PHENOLOGY_{start}.png")
+                plt.close()
 
-        rmse = np.zeros((2, self.n_stages-1, len(true)))
+        rmse = np.zeros((1, self.n_stages-1, len(true)))
         for s in range(self.n_stages-1):
             for i in range(len(true)):
                 rmse[0, s,i] = BayesianNonDormantOptimizer.compute_RMSE_STAGE(true[i],model_1[i], self.stages[s], [])
-                rmse[1, s,i] = BayesianNonDormantOptimizer.compute_RMSE_STAGE(true[i],model_2[i], self.stages[s], [])
         
         rmse_avg = np.sqrt(np.mean(rmse,axis=-1))
         rmse_std = np.sqrt(np.mean(rmse,axis=-1))
 
-        with open("data.txt", "a") as f:
-            f.write(f"{self.cultivar}, {np.round(rmse_avg[0],decimals=4)}, {np.round(rmse_std[0],decimals=4)}\n")
-        f.close()
-        x = np.arange(self.n_stages-1)
-        plt.figure()
-        plt.bar(x-.2, rmse_avg[0], 0.4, label='Ours')
-        plt.bar(x+.2, rmse_avg[1], 0.4, label=f"SOTA (Keller)")
-
-        plt.errorbar(x-.2, rmse_avg[0], rmse_std[0], color="k", fmt='none', capsize=10)
-        plt.errorbar(x+.2, rmse_avg[1], rmse_std[1], color="k", fmt='none',capsize=10)
-
-        plt.title(f"{self.cultivar} Model Error, Ours vs. Keller")
-        plt.xlabel("Stage")
-        plt.xticks(ticks=x, labels=self.stages[:-1], rotation=0)
-        plt.ylabel("Average Error in Days")
-        plt.legend()
-
-        if path is None:
-            plt.savefig(f"{self.fpath}/Phenology/{self.cultivar}_Error_Comparison.png")
+        '''if train:
+            fname = "data_train.txt"
         else:
-            plt.savefig(f"{path}/{self.cultivar}_Error_Comparison.png")
-        plt.close()
+            fname = "data_test.txt"
+        with open(fname, "a") as f:
+            np.savetxt(f, np.round(rmse_avg[0],decimals=3).flatten(), delimiter=',', fmt='%s')
+            #f.write(f"{self.cultivar}, {np.round(rmse_avg[0],decimals=4)}\n")
+        f.close()'''
+
+        if plot:
+            x = np.arange(self.n_stages-1)
+            plt.figure()
+            plt.bar(x-.2, rmse_avg[0], 0.4, label='Ours')
+
+            plt.errorbar(x-.2, rmse_avg[0], rmse_std[0], color="k", fmt='none', capsize=10)
+
+            plt.title(f"{self.cultivar} Model Error, Ours vs. Keller")
+            plt.xlabel("Stage")
+            plt.xticks(ticks=x, labels=self.stages[:-1], rotation=0)
+            plt.ylabel("Average Error in Days")
+            plt.legend()
+
+            if path is None:
+                plt.savefig(f"{self.fpath}/Phenology/{self.cultivar}_Error_Comparison.png")
+            else:
+                plt.savefig(f"{path}/{self.cultivar}_Error_Comparison.png")
+            plt.close()
 
         return rmse_avg[0]
 
@@ -781,7 +799,12 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", default="default", type=str, help="Path to Config")
     parser.add_argument("--cultivar", default="Aligote",type=str)
+    parser.add_argument("--seed", default=0, type=int)
     args = parser.parse_args()
+
+    np.random.seed(args.seed)
+    torch.manual_seed(args.seed)
+    random.seed(args.seed)
 
     config = OmegaConf.load(f"configs/{args.config}.yaml")
     config.cultivar = args.cultivar
@@ -789,14 +812,14 @@ def main():
     optim = BayesianNonDormantOptimizer(config)
     optim.optimize()
 
-    optim.save_model(f"{optim.fpath}/{config.cultivar}.pkl")
+    optim.save_model(f"{optim.fpath}/{args.seed}_{config.cultivar}.pkl")
 
-    for i in range(optim.n_stages):
+    '''for i in range(optim.n_stages):
         optim.plot_gp(i)
         #optim.animate_gp(i)
     
     optim.plot()
-
+    '''
     
 if __name__ == "__main__":
     main()
