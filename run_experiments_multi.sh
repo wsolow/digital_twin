@@ -1,7 +1,7 @@
 #!/bin/bash
-#SBATCH -J exp_4
-#SBATCH -o output/exp_4.out
-#SBATCH -e output/exp_4.err
+#SBATCH -J multi01
+#SBATCH -o output/multi01.out
+#SBATCH -e output/multi01.err
 #SBATCH -p eecs,share
 #SBATCH -t 5-00:00:00
 
