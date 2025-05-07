@@ -77,7 +77,9 @@ class BayesianNonDormantOptimizer():
         self.cultivar = config.cultivar
         if data_list is None:
             if self.cultivar is not None:
-                self.data_list, self.stage_list = ld.load_and_process_data_nondormant(config.cultivar)
+                self.data_list, self.stage_list = ld.load_and_process_data_phenology_reduced(config.cultivar)
+                for i,d in enumerate(self.data_list):
+                    self.data_list[i] = d.loc[:,["DATE", "PHENOLOGY","TMIN", "TMAX", "TEMP", "RAIN", "IRRAD", "LAT", "LON"]]
             else:
                 data, cult = self.load_config_data()
                 self.data_list = [data]
@@ -101,7 +103,7 @@ class BayesianNonDormantOptimizer():
         self.all_params = []
         self.opt_params = copy.deepcopy(self.params)
 
-        self.pbounds = [{"TBASEM": (0,15),"TSUMEM":(10, 500)}, # Bud break
+        self.pbounds = [{"TBASEM": (0,15),"TSUMEM":(10, 100)}, # Bud break
                         {"TEFFMX":(15,45), "TSUM1":(100, 1000)}, # Flowering
                         {"TEFFMX":(15,45), "TSUM2":(100, 1000)}, # Veraison 
                         {"TEFFMX":(15,45), "TSUM3":(100, 1000)}] # Ripe
@@ -117,7 +119,7 @@ class BayesianNonDormantOptimizer():
         """
         self.stage_params = []
         if path is None:
-            self.fpath = f"logs/calib/{self.cultivar}/{self.cultivar}_{datetime.now().strftime('%Y-%m-%d_%H:%M:%S')}"
+            self.fpath = f"logs/2024_data_calib_noBRIN/{self.cultivar}/{self.cultivar}_{datetime.now().strftime('%Y-%m-%d_%H:%M:%S')}"
         else:
             self.fpath = path
         os.makedirs(self.fpath, exist_ok=True)
@@ -420,7 +422,7 @@ class BayesianNonDormantOptimizer():
         model_stage_args = np.argwhere(model_output == curr_stage).flatten()
         
         if len(true_stage_args) == 0 or len(model_stage_args) == 0:
-            return len(true_stage_args) + len(model_stage_args)
+            return (len(true_stage_args) + len(model_stage_args)) ** 2
         else:
             return (true_stage_args[0] - model_stage_args[0])**2
 
@@ -653,13 +655,15 @@ class BayesianNonDormantOptimizer():
                     plt.savefig(f"{path}/{self.cultivar}_PHENOLOGY_{start}.png")
                 plt.close()
 
-        rmse = np.zeros((1, self.n_stages-1, len(true)))
+        rmse = np.zeros((1, self.n_stages-1, len(true)))-1
         for s in range(self.n_stages-1):
             for i in range(len(true)):
+                if s not in true[i]["PHENOLOGY"].tolist() and s not in model_1[i]["PHENOLOGY"].tolist():
+                    print(f'Continuing {self.stages[s]} ...')
+                    continue
                 rmse[0, s,i] = BayesianNonDormantOptimizer.compute_RMSE_STAGE(true[i],model_1[i], self.stages[s], [])
-        
-        rmse_avg = np.sqrt(np.mean(rmse,axis=-1))
-        rmse_std = np.sqrt(np.mean(rmse,axis=-1))
+        rmse_avg = np.sqrt(np.mean(np.ma.masked_equal(rmse, -1),axis=-1))
+        rmse_std = np.sqrt(np.mean(np.ma.masked_equal(rmse, -1),axis=-1))
 
         '''if train:
             fname = "data_train.txt"

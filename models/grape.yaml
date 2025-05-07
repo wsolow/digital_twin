@@ -1,0 +1,1115 @@
+Auxerrois:
+  <<: *grape
+  #
+  # EMERGENCE
+  #
+  TBASEM: 
+  - 12.11
+  - Lower threshold temperature for budbreak
+  - ['C']
+  TEFFMX: 
+  - 21.91
+  - maximum effective temperature for budbreak
+  - ['C']
+  #
+  # PHENOLOGICAL DEVELOPMENT
+  #
+  TSUM1: 
+  - 214.89
+  - temperature sum from budbreak to flowering
+  - ['C.d']
+  TSUM2: 
+  - 420.25
+  - temperature sum from flowering to veraison
+  - ['C.d']
+  TSUM3: 
+  - 846.5
+  - temperature sum from veraison to ripe
+  - ['C.d']
+  TSUM4: 
+  - 1000.0
+  - temperature sum from ripe onwards
+  - ['C.d']
+  TSUMEM: 
+  - 40.58
+  - temperature sum from endodorm to budbreak
+  - ['C.d']
+Alvarinho:
+  <<: *grape
+  # EMERGENCE
+  #
+  TBASEM: 
+  - 11.77
+  - Lower threshold temperature for budbreak
+  - ['C']
+  TEFFMX: 
+  - 24.8
+  - maximum effective temperature for budbreak
+  - ['C']
+  #
+  # PHENOLOGICAL DEVELOPMENT
+  #
+  TSUM1: 
+  - 228.6
+  - temperature sum from budbreak to flowering
+  - ['C.d']
+  TSUM2: 
+  - 563.53
+  - temperature sum from flowering to veraison
+  - ['C.d']
+  TSUM3: 
+  - 251.82
+  - temperature sum from veraison to ripe
+  - ['C.d']
+  TSUM4: 
+  - 1000.0
+  - temperature sum from ripe onwards
+  - ['C.d']
+  TSUMEM: 
+  - 39.38
+  - temperature sum from endodorm to budbreak
+  - ['C.d']
+Aligote:
+  <<: *grape
+  #
+  # EMERGENCE
+  #
+  TBASEM: 
+  - 11.06
+  - Lower threshold temperature for budbreak
+  - ['C']
+  TEFFMX: 
+  - 24.16
+  - maximum effective temperature for budbreak
+  - ['C']
+  #
+  # PHENOLOGICAL DEVELOPMENT
+  #
+  TSUM1: 
+  - 242.94
+  - temperature sum from budbreak to flowering
+  - ['C.d']
+  TSUM2: 
+  - 593.14
+  - temperature sum from flowering to veraison
+  - ['C.d']
+  TSUM3: 
+  - 293.34
+  - temperature sum from veraison to ripe
+  - ['C.d']
+  TSUM4: 
+  - 1000.0
+  - temperature sum from ripe onwards
+  - ['C.d']
+  TSUMEM: 
+  - 45.02
+  - temperature sum from endodorm to budbreak
+  - ['C.d']
+Muscat_Blanc:
+  <<: *grape
+  #
+  # EMERGENCE
+  #
+  TBASEM: 
+  - 11.29
+  - Lower threshold temperature for budbreak
+  - ['C']
+  TEFFMX: 
+  - 20.75
+  - maximum effective temperature for budbreak
+  - ['C']
+  #
+  # PHENOLOGICAL DEVELOPMENT
+  #
+  TSUM1: 
+  - 200.04
+  - temperature sum from budbreak to flowering
+  - ['C.d']
+  TSUM2: 
+  - 372.39
+  - temperature sum from flowering to veraison
+  - ['C.d']
+  TSUM3: 
+  - 783.9
+  - temperature sum from veraison to ripe
+  - ['C.d']
+  TSUM4: 
+  - 1000.0
+  - temperature sum from ripe onwards
+  - ['C.d']
+  TSUMEM: 
+  - 43.81
+  - temperature sum from endodorm to budbreak
+  - ['C.d']
+Malbec:
+  <<: *grape
+  #
+  # EMERGENCE
+  #
+  TBASEM: 
+  - 11.66
+  - Lower threshold temperature for budbreak
+  - ['C']
+  TEFFMX: 
+  - 22.3
+  - maximum effective temperature for budbreak
+  - ['C']
+  #
+  # PHENOLOGICAL DEVELOPMENT
+  #
+  TSUM1: 
+  - 205.04
+  - temperature sum from budbreak to flowering
+  - ['C.d']
+  TSUM2: 
+  - 464.0
+  - temperature sum from flowering to veraison
+  - ['C.d']
+  TSUM3: 
+  - 408.42
+  - temperature sum from veraison to ripe
+  - ['C.d']
+  TSUM4: 
+  - 1000.0
+  - temperature sum from ripe onwards
+  - ['C.d']
+  TSUMEM: 
+  - 43.53
+  - temperature sum from endodorm to budbreak
+  - ['C.d']
+Lemberger:
+  <<: *grape
+  #
+  # EMERGENCE
+  #
+  TBASEM: 
+  - 11.38
+  - Lower threshold temperature for budbreak
+  - ['C']
+  TEFFMX: 
+  - 23.51
+  - maximum effective temperature for budbreak
+  - ['C']
+  #
+  # PHENOLOGICAL DEVELOPMENT
+  #
+  TSUM1: 
+  - 222.36
+  - temperature sum from budbreak to flowering
+  - ['C.d']
+  TSUM2: 
+  - 452.01
+  - temperature sum from flowering to veraison
+  - ['C.d']
+  TSUM3: 
+  - 528.28
+  - temperature sum from veraison to ripe
+  - ['C.d']
+  TSUM4: 
+  - 1000.0
+  - temperature sum from ripe onwards
+  - ['C.d']
+  TSUMEM: 
+  - 42.89
+  - temperature sum from endodorm to budbreak
+  - ['C.d']
+Grenache:
+  <<: *grape
+  #
+  # EMERGENCE
+  #
+  TBASEM: 
+  - 12.0
+  - Lower threshold temperature for budbreak
+  - ['C']
+  TEFFMX: 
+  - 23.05
+  - maximum effective temperature for budbreak
+  - ['C']
+  #
+  # PHENOLOGICAL DEVELOPMENT
+  #
+  TSUM1: 
+  - 221.25
+  - temperature sum from budbreak to flowering
+  - ['C.d']
+  TSUM2: 
+  - 469.27
+  - temperature sum from flowering to veraison
+  - ['C.d']
+  TSUM3: 
+  - 591.99
+  - temperature sum from veraison to ripe
+  - ['C.d']
+  TSUM4: 
+  - 1000.0
+  - temperature sum from ripe onwards
+  - ['C.d']
+  TSUMEM: 
+  - 46.89
+  - temperature sum from endodorm to budbreak
+  - ['C.d']
+Gewurztraminer:
+  <<: *grape
+  #
+  # EMERGENCE
+  #
+  TBASEM: 
+  - 11.83
+  - Lower threshold temperature for budbreak
+  - ['C']
+  TEFFMX: 
+  - 25.08
+  - maximum effective temperature for budbreak
+  - ['C']
+  #
+  # PHENOLOGICAL DEVELOPMENT
+  #
+  TSUM1: 
+  - 225.91
+  - temperature sum from budbreak to flowering
+  - ['C.d']
+  TSUM2: 
+  - 507.39
+  - temperature sum from flowering to veraison
+  - ['C.d']
+  TSUM3: 
+  - 491.39
+  - temperature sum from veraison to ripe
+  - ['C.d']
+  TSUM4: 
+  - 1000.0
+  - temperature sum from ripe onwards
+  - ['C.d']
+  TSUMEM: 
+  - 35.74
+  - temperature sum from endodorm to budbreak
+  - ['C.d']
+Chenin_Blanc:
+  <<: *grape
+  #
+  # EMERGENCE
+  #
+  TBASEM: 
+  - 11.59
+  - Lower threshold temperature for budbreak
+  - ['C']
+  TEFFMX: 
+  - 23.08
+  - maximum effective temperature for budbreak
+  - ['C']
+  #
+  # PHENOLOGICAL DEVELOPMENT
+  #
+  TSUM1: 
+  - 225.14
+  - temperature sum from budbreak to flowering
+  - ['C.d']
+  TSUM2: 
+  - 491.55
+  - temperature sum from flowering to veraison
+  - ['C.d']
+  TSUM3: 
+  - 754.43
+  - temperature sum from veraison to ripe
+  - ['C.d']
+  TSUM4: 
+  - 1000.0
+  - temperature sum from ripe onwards
+  - ['C.d']
+  TSUMEM: 
+  - 37.99
+  - temperature sum from endodorm to budbreak
+  - ['C.d']
+Durif:
+  <<: *grape
+  #
+  # EMERGENCE
+  #
+  TBASEM: 
+  - 11.59
+  - Lower threshold temperature for budbreak
+  - ['C']
+  TEFFMX: 
+  - 26.59
+  - maximum effective temperature for budbreak
+  - ['C']
+  #
+  # PHENOLOGICAL DEVELOPMENT
+  #
+  TSUM1: 
+  - 236.85
+  - temperature sum from budbreak to flowering
+  - ['C.d']
+  TSUM2: 
+  - 502.75
+  - temperature sum from flowering to veraison
+  - ['C.d']
+  TSUM3: 
+  - 724.7
+  - temperature sum from veraison to ripe
+  - ['C.d']
+  TSUM4: 
+  - 1000.0
+  - temperature sum from ripe onwards
+  - ['C.d']
+  TSUMEM: 
+  - 57.17
+  - temperature sum from endodorm to budbreak
+  - ['C.d']
+Concord:
+  <<: *grape
+  #
+  # EMERGENCE
+  #
+  TBASEM: 
+  - 10.04
+  - Lower threshold temperature for budbreak
+  - ['C']
+  TEFFMX: 
+  - 19.3
+  - maximum effective temperature for budbreak
+  - ['C']
+  #
+  # PHENOLOGICAL DEVELOPMENT
+  #
+  TSUM1: 
+  - 197.99
+  - temperature sum from budbreak to flowering
+  - ['C.d']
+  TSUM2: 
+  - 592.93
+  - temperature sum from flowering to veraison
+  - ['C.d']
+  TSUM3: 
+  - 406.6
+  - temperature sum from veraison to ripe
+  - ['C.d']
+  TSUM4: 
+  - 1000.0
+  - temperature sum from ripe onwards
+  - ['C.d']
+  TSUMEM: 
+  - 60.65
+  - temperature sum from endodorm to budbreak
+  - ['C.d']
+Barbera:
+  <<: *grape
+  #
+  # EMERGENCE
+  #
+  TBASEM: 
+  - 12.24
+  - Lower threshold temperature for budbreak
+  - ['C']
+  TEFFMX: 
+  - 44.29
+  - maximum effective temperature for budbreak
+  - ['C']
+  #
+  # PHENOLOGICAL DEVELOPMENT
+  #
+  TSUM1: 
+  - 226.0
+  - temperature sum from budbreak to flowering
+  - ['C.d']
+  TSUM2: 
+  - 635.22
+  - temperature sum from flowering to veraison
+  - ['C.d']
+  TSUM3: 
+  - 614.04
+  - temperature sum from veraison to ripe
+  - ['C.d']
+  TSUM4: 
+  - 1000.0
+  - temperature sum from ripe onwards
+  - ['C.d']
+  TSUMEM: 
+  - 39.49
+  - temperature sum from endodorm to budbreak
+  - ['C.d']
+Merlot:
+  <<: *grape
+  #
+  # EMERGENCE
+  #
+  TBASEM: 
+  - 11.24
+  - Lower threshold temperature for budbreak
+  - ['C']
+  TEFFMX: 
+  - 23.66
+  - maximum effective temperature for budbreak
+  - ['C']
+  #
+  # PHENOLOGICAL DEVELOPMENT
+  #
+  TSUM1: 
+  - 229.65
+  - temperature sum from budbreak to flowering
+  - ['C.d']
+  TSUM2: 
+  - 539.78
+  - temperature sum from flowering to veraison
+  - ['C.d']
+  TSUM3: 
+  - 644.28
+  - temperature sum from veraison to ripe
+  - ['C.d']
+  TSUM4: 
+  - 1000.0
+  - temperature sum from ripe onwards
+  - ['C.d']
+  TSUMEM: 
+  - 60.38
+  - temperature sum from endodorm to budbreak
+  - ['C.d']
+Chardonnay:
+  <<: *grape
+  #
+  # EMERGENCE
+  #
+  TBASEM: 
+  - 10.79
+  - Lower threshold temperature for budbreak
+  - ['C']
+  TEFFMX: 
+  - 25.6
+  - maximum effective temperature for budbreak
+  - ['C']
+  #
+  # PHENOLOGICAL DEVELOPMENT
+  #
+  TSUM1: 
+  - 230.2
+  - temperature sum from budbreak to flowering
+  - ['C.d']
+  TSUM2: 
+  - 605.14
+  - temperature sum from flowering to veraison
+  - ['C.d']
+  TSUM3: 
+  - 422.14
+  - temperature sum from veraison to ripe
+  - ['C.d']
+  TSUM4: 
+  - 1000.0
+  - temperature sum from ripe onwards
+  - ['C.d']
+  TSUMEM: 
+  - 47.2
+  - temperature sum from endodorm to budbreak
+  - ['C.d']
+Melon:
+  <<: *grape
+  #
+  # EMERGENCE
+  #
+  TBASEM: 
+  - 11.64
+  - Lower threshold temperature for budbreak
+  - ['C']
+  TEFFMX: 
+  - 24.26
+  - maximum effective temperature for budbreak
+  - ['C']
+  #
+  # PHENOLOGICAL DEVELOPMENT
+  #
+  TSUM1: 
+  - 234.5
+  - temperature sum from budbreak to flowering
+  - ['C.d']
+  TSUM2: 
+  - 554.8
+  - temperature sum from flowering to veraison
+  - ['C.d']
+  TSUM3: 
+  - 995.01
+  - temperature sum from veraison to ripe
+  - ['C.d']
+  TSUM4: 
+  - 1000.0
+  - temperature sum from ripe onwards
+  - ['C.d']
+  TSUMEM: 
+  - 36.05
+  - temperature sum from endodorm to budbreak
+  - ['C.d']
+Cabernet_Sauvignon:
+  <<: *grape
+  #
+  # EMERGENCE
+  #
+  TBASEM: 
+  - 11.56
+  - Lower threshold temperature for budbreak
+  - ['C']
+  TEFFMX: 
+  - 23.22
+  - maximum effective temperature for budbreak
+  - ['C']
+  #
+  # PHENOLOGICAL DEVELOPMENT
+  #
+  TSUM1: 
+  - 216.67
+  - temperature sum from budbreak to flowering
+  - ['C.d']
+  TSUM2: 
+  - 484.92
+  - temperature sum from flowering to veraison
+  - ['C.d']
+  TSUM3: 
+  - 638.61
+  - temperature sum from veraison to ripe
+  - ['C.d']
+  TSUM4: 
+  - 1000.0
+  - temperature sum from ripe onwards
+  - ['C.d']
+  TSUMEM: 
+  - 55.32
+  - temperature sum from endodorm to budbreak
+  - ['C.d']
+Dolcetto:
+  <<: *grape
+  #
+  # EMERGENCE
+  #
+  TBASEM: 
+  - 8.3
+  - Lower threshold temperature for budbreak
+  - ['C']
+  TEFFMX: 
+  - 34.55
+  - maximum effective temperature for budbreak
+  - ['C']
+  #
+  # PHENOLOGICAL DEVELOPMENT
+  #
+  TSUM1: 
+  - 450.55
+  - temperature sum from budbreak to flowering
+  - ['C.d']
+  TSUM2: 
+  - 773.13
+  - temperature sum from flowering to veraison
+  - ['C.d']
+  TSUM3: 
+  - 172.85
+  - temperature sum from veraison to ripe
+  - ['C.d']
+  TSUM4: 
+  - 1000.0
+  - temperature sum from ripe onwards
+  - ['C.d']
+  TSUMEM: 
+  - 94.05
+  - temperature sum from endodorm to budbreak
+  - ['C.d']
+Cabernet_Franc:
+  <<: *grape
+  #
+  # EMERGENCE
+  #
+  TBASEM: 
+  - 11.0
+  - Lower threshold temperature for budbreak
+  - ['C']
+  TEFFMX: 
+  - 22.84
+  - maximum effective temperature for budbreak
+  - ['C']
+  #
+  # PHENOLOGICAL DEVELOPMENT
+  #
+  TSUM1: 
+  - 231.17
+  - temperature sum from budbreak to flowering
+  - ['C.d']
+  TSUM2: 
+  - 599.46
+  - temperature sum from flowering to veraison
+  - ['C.d']
+  TSUM3: 
+  - 585.72
+  - temperature sum from veraison to ripe
+  - ['C.d']
+  TSUM4: 
+  - 1000.0
+  - temperature sum from ripe onwards
+  - ['C.d']
+  TSUMEM: 
+  - 47.66
+  - temperature sum from endodorm to budbreak
+  - ['C.d']
+Green_Veltliner:
+  <<: *grape
+  #
+  # EMERGENCE
+  #
+  TBASEM: 
+  - 11.98
+  - Lower threshold temperature for budbreak
+  - ['C']
+  TEFFMX: 
+  - 36.31
+  - maximum effective temperature for budbreak
+  - ['C']
+  #
+  # PHENOLOGICAL DEVELOPMENT
+  #
+  TSUM1: 
+  - 216.8
+  - temperature sum from budbreak to flowering
+  - ['C.d']
+  TSUM2: 
+  - 580.79
+  - temperature sum from flowering to veraison
+  - ['C.d']
+  TSUM3: 
+  - 691.69
+  - temperature sum from veraison to ripe
+  - ['C.d']
+  TSUM4: 
+  - 1000.0
+  - temperature sum from ripe onwards
+  - ['C.d']
+  TSUMEM: 
+  - 44.1
+  - temperature sum from endodorm to budbreak
+  - ['C.d']
+Nebbiolo:
+  <<: *grape
+  #
+  # EMERGENCE
+  #
+  TBASEM: 
+  - 12.38
+  - Lower threshold temperature for budbreak
+  - ['C']
+  TEFFMX: 
+  - 23.47
+  - maximum effective temperature for budbreak
+  - ['C']
+  #
+  # PHENOLOGICAL DEVELOPMENT
+  #
+  TSUM1: 
+  - 220.71
+  - temperature sum from budbreak to flowering
+  - ['C.d']
+  TSUM2: 
+  - 603.79
+  - temperature sum from flowering to veraison
+  - ['C.d']
+  TSUM3: 
+  - 565.89
+  - temperature sum from veraison to ripe
+  - ['C.d']
+  TSUM4: 
+  - 1000.0
+  - temperature sum from ripe onwards
+  - ['C.d']
+  TSUMEM: 
+  - 33.12
+  - temperature sum from endodorm to budbreak
+  - ['C.d']
+Petit_Verdot:
+  <<: *grape
+  #
+  # EMERGENCE
+  #
+  TBASEM: 
+  - 11.61
+  - Lower threshold temperature for budbreak
+  - ['C']
+  TEFFMX: 
+  - 23.23
+  - maximum effective temperature for budbreak
+  - ['C']
+  #
+  # PHENOLOGICAL DEVELOPMENT
+  #
+  TSUM1: 
+  - 212.93
+  - temperature sum from budbreak to flowering
+  - ['C.d']
+  TSUM2: 
+  - 651.64
+  - temperature sum from flowering to veraison
+  - ['C.d']
+  TSUM3: 
+  - 344.89
+  - temperature sum from veraison to ripe
+  - ['C.d']
+  TSUM4: 
+  - 1000.0
+  - temperature sum from ripe onwards
+  - ['C.d']
+  TSUMEM: 
+  - 50.27
+  - temperature sum from endodorm to budbreak
+  - ['C.d']
+Pinot_Blanc:
+  <<: *grape
+  #
+  # EMERGENCE
+  #
+  TBASEM: 
+  - 12.05
+  - Lower threshold temperature for budbreak
+  - ['C']
+  TEFFMX: 
+  - 23.59
+  - maximum effective temperature for budbreak
+  - ['C']
+  #
+  # PHENOLOGICAL DEVELOPMENT
+  #
+  TSUM1: 
+  - 226.23
+  - temperature sum from budbreak to flowering
+  - ['C.d']
+  TSUM2: 
+  - 524.28
+  - temperature sum from flowering to veraison
+  - ['C.d']
+  TSUM3: 
+  - 252.12
+  - temperature sum from veraison to ripe
+  - ['C.d']
+  TSUM4: 
+  - 1000.0
+  - temperature sum from ripe onwards
+  - ['C.d']
+  TSUMEM: 
+  - 36.06
+  - temperature sum from endodorm to budbreak
+  - ['C.d']
+Zinfandel:
+  <<: *grape
+  #
+  # EMERGENCE
+  #
+  TBASEM: 
+  - 11.16
+  - Lower threshold temperature for budbreak
+  - ['C']
+  TEFFMX: 
+  - 23.24
+  - maximum effective temperature for budbreak
+  - ['C']
+  #
+  # PHENOLOGICAL DEVELOPMENT
+  #
+  TSUM1: 
+  - 234.19
+  - temperature sum from budbreak to flowering
+  - ['C.d']
+  TSUM2: 
+  - 542.4
+  - temperature sum from flowering to veraison
+  - ['C.d']
+  TSUM3: 
+  - 293.9
+  - temperature sum from veraison to ripe
+  - ['C.d']
+  TSUM4: 
+  - 1000.0
+  - temperature sum from ripe onwards
+  - ['C.d']
+  TSUMEM: 
+  - 52.87
+  - temperature sum from endodorm to budbreak
+  - ['C.d']
+Viognier:
+  <<: *grape
+  #
+  # EMERGENCE
+  #
+  TBASEM: 
+  - 12.14
+  - Lower threshold temperature for budbreak
+  - ['C']
+  TEFFMX: 
+  - 28.4
+  - maximum effective temperature for budbreak
+  - ['C']
+  #
+  # PHENOLOGICAL DEVELOPMENT
+  #
+  TSUM1: 
+  - 227.96
+  - temperature sum from budbreak to flowering
+  - ['C.d']
+  TSUM2: 
+  - 571.92
+  - temperature sum from flowering to veraison
+  - ['C.d']
+  TSUM3: 
+  - 585.41
+  - temperature sum from veraison to ripe
+  - ['C.d']
+  TSUM4: 
+  - 1000.0
+  - temperature sum from ripe onwards
+  - ['C.d']
+  TSUMEM: 
+  - 35.96
+  - temperature sum from endodorm to budbreak
+  - ['C.d']
+Sauvignon_Blanc:
+  <<: *grape
+  #
+  # EMERGENCE
+  #
+  TBASEM: 
+  - 12.65
+  - Lower threshold temperature for budbreak
+  - ['C']
+  TEFFMX: 
+  - 25.38
+  - maximum effective temperature for budbreak
+  - ['C']
+  #
+  # PHENOLOGICAL DEVELOPMENT
+  #
+  TSUM1: 
+  - 221.58
+  - temperature sum from budbreak to flowering
+  - ['C.d']
+  TSUM2: 
+  - 483.74
+  - temperature sum from flowering to veraison
+  - ['C.d']
+  TSUM3: 
+  - 805.9
+  - temperature sum from veraison to ripe
+  - ['C.d']
+  TSUM4: 
+  - 1000.0
+  - temperature sum from ripe onwards
+  - ['C.d']
+  TSUMEM: 
+  - 25.46
+  - temperature sum from endodorm to budbreak
+  - ['C.d']
+Tempranillo:
+  <<: *grape
+  #
+  # EMERGENCE
+  #
+  TBASEM: 
+  - 12.41
+  - Lower threshold temperature for budbreak
+  - ['C']
+  TEFFMX: 
+  - 23.94
+  - maximum effective temperature for budbreak
+  - ['C']
+  #
+  # PHENOLOGICAL DEVELOPMENT
+  #
+  TSUM1: 
+  - 220.6
+  - temperature sum from budbreak to flowering
+  - ['C.d']
+  TSUM2: 
+  - 455.6
+  - temperature sum from flowering to veraison
+  - ['C.d']
+  TSUM3: 
+  - 304.65
+  - temperature sum from veraison to ripe
+  - ['C.d']
+  TSUM4: 
+  - 1000.0
+  - temperature sum from ripe onwards
+  - ['C.d']
+  TSUMEM: 
+  - 32.64
+  - temperature sum from endodorm to budbreak
+  - ['C.d']
+Pinot_Gris:
+  <<: *grape
+  #
+  # EMERGENCE
+  #
+  TBASEM: 
+  - 10.65
+  - Lower threshold temperature for budbreak
+  - ['C']
+  TEFFMX: 
+  - 24.28
+  - maximum effective temperature for budbreak
+  - ['C']
+  #
+  # PHENOLOGICAL DEVELOPMENT
+  #
+  TSUM1: 
+  - 225.86
+  - temperature sum from budbreak to flowering
+  - ['C.d']
+  TSUM2: 
+  - 532.38
+  - temperature sum from flowering to veraison
+  - ['C.d']
+  TSUM3: 
+  - 632.44
+  - temperature sum from veraison to ripe
+  - ['C.d']
+  TSUM4: 
+  - 1000.0
+  - temperature sum from ripe onwards
+  - ['C.d']
+  TSUMEM: 
+  - 71.77
+  - temperature sum from endodorm to budbreak
+  - ['C.d']
+Semillon:
+  <<: *grape
+  #
+  # EMERGENCE
+  #
+  TBASEM: 
+  - 11.57
+  - Lower threshold temperature for budbreak
+  - ['C']
+  TEFFMX: 
+  - 28.03
+  - maximum effective temperature for budbreak
+  - ['C']
+  #
+  # PHENOLOGICAL DEVELOPMENT
+  #
+  TSUM1: 
+  - 234.51
+  - temperature sum from budbreak to flowering
+  - ['C.d']
+  TSUM2: 
+  - 593.39
+  - temperature sum from flowering to veraison
+  - ['C.d']
+  TSUM3: 
+  - 358.36
+  - temperature sum from veraison to ripe
+  - ['C.d']
+  TSUM4: 
+  - 1000.0
+  - temperature sum from ripe onwards
+  - ['C.d']
+  TSUMEM: 
+  - 41.0
+  - temperature sum from endodorm to budbreak
+  - ['C.d']
+Riesling:
+  <<: *grape
+  #
+  # EMERGENCE
+  #
+  TBASEM: 
+  - 10.6
+  - Lower threshold temperature for budbreak
+  - ['C']
+  TEFFMX: 
+  - 23.48
+  - maximum effective temperature for budbreak
+  - ['C']
+  #
+  # PHENOLOGICAL DEVELOPMENT
+  #
+  TSUM1: 
+  - 223.78
+  - temperature sum from budbreak to flowering
+  - ['C.d']
+  TSUM2: 
+  - 592.28
+  - temperature sum from flowering to veraison
+  - ['C.d']
+  TSUM3: 
+  - 988.3
+  - temperature sum from veraison to ripe
+  - ['C.d']
+  TSUM4: 
+  - 1000.0
+  - temperature sum from ripe onwards
+  - ['C.d']
+  TSUMEM: 
+  - 72.53
+  - temperature sum from endodorm to budbreak
+  - ['C.d']
+Sangiovese:
+  <<: *grape
+  #
+  # EMERGENCE
+  #
+  TBASEM: 
+  - 10.63
+  - Lower threshold temperature for budbreak
+  - ['C']
+  TEFFMX: 
+  - 21.38
+  - maximum effective temperature for budbreak
+  - ['C']
+  #
+  # PHENOLOGICAL DEVELOPMENT
+  #
+  TSUM1: 
+  - 217.5
+  - temperature sum from budbreak to flowering
+  - ['C.d']
+  TSUM2: 
+  - 620.16
+  - temperature sum from flowering to veraison
+  - ['C.d']
+  TSUM3: 
+  - 341.03
+  - temperature sum from veraison to ripe
+  - ['C.d']
+  TSUM4: 
+  - 1000.0
+  - temperature sum from ripe onwards
+  - ['C.d']
+  TSUMEM: 
+  - 68.83
+  - temperature sum from endodorm to budbreak
+  - ['C.d']
+Pinot_Noir:
+  <<: *grape
+  #
+  # EMERGENCE
+  #
+  TBASEM: 
+  - 10.85
+  - Lower threshold temperature for budbreak
+  - ['C']
+  TEFFMX: 
+  - 35.9
+  - maximum effective temperature for budbreak
+  - ['C']
+  #
+  # PHENOLOGICAL DEVELOPMENT
+  #
+  TSUM1: 
+  - 228.18
+  - temperature sum from budbreak to flowering
+  - ['C.d']
+  TSUM2: 
+  - 692.62
+  - temperature sum from flowering to veraison
+  - ['C.d']
+  TSUM3: 
+  - 392.36
+  - temperature sum from veraison to ripe
+  - ['C.d']
+  TSUM4: 
+  - 1000.0
+  - temperature sum from ripe onwards
+  - ['C.d']
+  TSUMEM: 
+  - 52.82
+  - temperature sum from endodorm to budbreak
+  - ['C.d']

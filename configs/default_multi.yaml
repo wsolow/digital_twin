@@ -1,0 +1,26 @@
+# Configuration file for Phenology Optimizer
+
+# Data paths
+model_config_fpath: configs/dt_config.yaml
+# If true, use working directory. Otherwise, use path in config.yaml
+cultivar: Multi
+n_stages: 4 # 4 is default
+
+# Optimizer configuration
+init_points: 300
+n_iter: 300
+alpha: 1e-10
+acq: EI
+multithread: False
+# Exploration parameter for UCB
+kappa: 2.576
+# Exploration parameter for expected improvement
+xi: 0.01
+loss_func: RMSE_SLICE # SUM or SUM_SLICE or RMSE_SLICE or MSE_SLICE or RMSE_DIFF
+num_runs: 5
+
+# Kernel parameters
+kernel: RBF  # Matern, RBF
+nu: 2.5
+
+

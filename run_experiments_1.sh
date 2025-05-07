@@ -3,7 +3,7 @@
 #SBATCH -o output/exp_1.out
 #SBATCH -e output/exp_1.err
 #SBATCH -p eecs,share
-#SBATCH -t 4-00:00:00
+#SBATCH -t 6-00:00:00
 
 python3 bayesian_optimizer.py --seed 1 --cultivar "Aligote"
 python3 bayesian_optimizer.py --seed 1 --cultivar "Alvarinho" 
@@ -13,8 +13,7 @@ python3 bayesian_optimizer.py --seed 1 --cultivar "Cabernet_Franc"
 python3 bayesian_optimizer.py --seed 1 --cultivar "Cabernet_Sauvignon" 
 python3 bayesian_optimizer.py --seed 1 --cultivar "Chardonnay" 
 python3 bayesian_optimizer.py --seed 1 --cultivar "Chenin_Blanc" 
-python3 bayesian_optimizer.py --seed 1 --cultivar "Concord" 
-python3 bayesian_optimizer.py --seed 1 --cultivar "Dolcetto" 
+python3 bayesian_optimizer.py --seed 1 --cultivar "Concord"  
 python3 bayesian_optimizer.py --seed 1 --cultivar "Durif" 
 python3 bayesian_optimizer.py --seed 1 --cultivar "Gewurztraminer" 
 python3 bayesian_optimizer.py --seed 1 --cultivar "Green_Veltliner" 
@@ -33,7 +32,6 @@ python3 bayesian_optimizer.py --seed 1 --cultivar "Riesling"
 python3 bayesian_optimizer.py --seed 1 --cultivar "Sangiovese" 
 python3 bayesian_optimizer.py --seed 1 --cultivar "Sauvignon_Blanc" 
 python3 bayesian_optimizer.py --seed 1 --cultivar "Semillon" 
-python3 bayesian_optimizer.py --seed 1 --cultivar "Syrah" 
 python3 bayesian_optimizer.py --seed 1 --cultivar "Tempranillo" 
 python3 bayesian_optimizer.py --seed 1 --cultivar "Viognier" 
 python3 bayesian_optimizer.py --seed 1 --cultivar "Zinfandel"

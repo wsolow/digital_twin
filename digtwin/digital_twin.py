@@ -67,6 +67,7 @@ class DigitalTwin():
             true_output, model_output = self.run()
             true_output_arr.append(true_output)
             model_output_arr.append(model_output)
+
         return pd.DataFrame(true_output_arr, columns=["DATE"]+self.output_vars+self.weather_vars),\
               pd.DataFrame(model_output_arr, columns=["DATE"]+self.output_vars+self.weather_vars)
 

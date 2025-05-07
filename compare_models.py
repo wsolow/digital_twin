@@ -31,13 +31,15 @@ def main():
     config = OmegaConf.load(f"configs/{args.config}.yaml")
     config.cultivar = args.cultivar
 
-    pkl_files = find_pickle_files(f"logs/calib/{config.cultivar}")
+    pkl_files = find_pickle_files(f"logs/2024_data_calib_noBRIN/{config.cultivar}")
     
     rmse_avg_test = np.zeros(3)
     rmse_avg_train = np.zeros(3)
 
     num_runs = 5
+    print("################### NEW MODEL ##############")
     for seed in range(num_runs):
+        print("SEED: ", seed)
         np.random.seed(seed)
         random.seed(seed)
         torch.manual_seed(seed)
